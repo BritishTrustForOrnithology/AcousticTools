@@ -1,7 +1,8 @@
 #' Rename audio files on SD card using creation date
 #' 
 #' @description
-#' For audio files named consecutively, rename in a Pipeline-friendly format 
+#' Useful for audio recorders that produce files with consecutively numbered file 
+#' names. This function will rename files in a 'Pipeline-friendly' format 
 #' using the recordings' creation datetime, which equates to the start datetime
 #' of the recording.
 #' 
