@@ -17,7 +17,9 @@ Takes the standard format of a Wildlife Acoustics SongMeter audio file and
 converts to BTO audible recordings audio library format.
 }
 \details{
-This function will rename files in the format:
+SongMeter audio files typically are named PREFIX_YYYYMMDD_HHMMSS. Unless
+preconfigured the PREFIX is the device code and not human-friendly for
+subsequent work. This function will rename files in the format:
 YYYYMMDD-HHMMSS-location-recordist-equipment.wav
 where location and recordist are provided in the function call.
 }
