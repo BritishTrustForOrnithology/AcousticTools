@@ -11,4 +11,5 @@ RoxygenNote: 7.2.3
 Imports: 
   rstudioapi,
   stringr,
-  tools
+  tools,
+  tuneR

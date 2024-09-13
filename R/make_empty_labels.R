@@ -18,12 +18,6 @@
 #'
 #' @import rstudioapi
 #' 
-#' @examples
-#' make_empty_labels()
-#' make_empty_labels(overwrite = TRUE)
-#' make_empty_labels(overwrite = TRUE, subfolders = FALSE)
-#' 
-#' 
 #' @export
 
 make_empty_labels <- function(overwrite = FALSE, subfolders = TRUE) {

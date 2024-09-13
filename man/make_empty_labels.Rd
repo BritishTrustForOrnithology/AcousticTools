@@ -23,10 +23,3 @@ save the labels to the existing empty file than to type in the file name in
 manually. Optionally the user can specify to overwrite any existing label
 files, and to scan recurisvely.
 }
-\examples{
-make_empty_labels()
-make_empty_labels(overwrite = TRUE)
-make_empty_labels(overwrite = TRUE, subfolders = FALSE)
-
-
-}
