@@ -15,6 +15,8 @@
 #' @return a list containing the file's sample rate, duration (seconds) and a 
 #' boolean flag for if the file is corrupt.
 #' 
+#' @export
+#' 
 get_duration <- function(wavfile) {
   
   #try to read the wav file using readWave
