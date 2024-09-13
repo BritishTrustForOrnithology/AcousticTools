@@ -10,6 +10,7 @@
 #' string). This function aims to simplify reading and standardising the format 
 #' of results read from BirdNET. 
 #'
+#' @param file = string, the path and filename of a BirdNET results file to be read.
 #' @param format = string, the format of the BirdNET output. One of Audacity, 
 #' Raven or csv (currently only Audacity supported)
 #' @param include_fname = boolean, whether to include the label filename in the 
