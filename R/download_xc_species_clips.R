@@ -4,10 +4,10 @@
 #' Uses the warbleR package and the xeno-canto API to download clips for a species.
 #' 
 #' @details
-#' Pass in a species name and a number of clips desired. Some filtering is currently 
-#' hard coded, e.g. only returns clips with quality A:B, removes nestlings and 
-#' birds not seen, and any clips with other species reported in the background. 
-#' It is possible these filters will result in zero returns.
+#' Pass in a species name and a number of clips desired. Some filtering is allowed 
+#' baed on min and max clip duration and quality. Removal of nestlings,  
+#' birds not seen, and any clips with other species reported in the background is
+#' currently hard-coded. It is possible these filters will result in zero returns.
 #' 
 #' @import warbleR
 #' @import lubridate
@@ -17,35 +17,69 @@
 #' @param path_out, string, the main path where files are to be saved.
 #' @param code2ltr, string, the two letter code of the species required
 #' @param n, numeric, the number of clips to return
+#' @param min_length, numeric, minimum clip length in seconds, default 10.
+#' @param max_length, numeric, maximum clip length in seconds.
+#' @param min_quality, character, minimum acceptable quality code (A:E).
+#' @param sample, character, strategy for sampling clips: random, short 
+#' (favouring short clips), long (favouring long clips).
+#' 
 #' 
 #' @export
 #' 
-download_XC_species_clips <- function(path_out, code2ltr, n) {
+download_XC_species_clips <- function(path_out, 
+                                      code2ltr, 
+                                      n, 
+                                      min_length = 10, 
+                                      max_length = NULL, 
+                                      min_quality = NULL,
+                                      sample = 'random') {
 
+  #check inputs
+  if(!is.null(min_quality)) {
+    if(!is.character(min_quality)) stop("min_quality must be a character")
+    if(!min_quality %in% c("A", "B","C","D","E")) stop("min_quality must be in range A to E")
+  }
+  if(!is.null(sample)) {
+    if(!sample %in% c('random',  'short', 'long')) stop('sample must be one of: random, short, long')
+  }
+  
+  
   #get the species names and codes for this species
   spinfo <- BTOTools::get_species_info('2ltr', code2ltr)
     
   #create the search string and get the XC listings
-  searchstring <- paste0(spinfo$english_name)
+  searchstring <- paste(spinfo$scientific_name)
   xcdf <- query_xc(searchstring, 
                    download = FALSE, 
                    file.name = c("Genus", "Specific_epithet", "Date", "Country", "Recordist"), 
                    parallel = 1, 
                    pb = TRUE)
 
+  #double check correct species
+  #sometimes search string fails for spp like Riparia riparia
+  xcdf$scientific_name <- paste(xcdf$Genus, xcdf$Specific_epithet)
+  xcdf <- subset(xcdf, scientific_name == spinfo$scientific_name)
+  
   #filter the XC listings...
   #remove clips with other species
   xcdf <- subset(xcdf, is.na(Other_species))
   xcdf <- subset(xcdf, is.na(Other_species1))
+  cat("# records after other species filtering = ", nrow(xcdf),"\n")
   
   #remove not seen
   xcdf <- subset(xcdf, Bird_seen == 'yes')
+  cat("# records after not-seen filtering = ", nrow(xcdf),"\n")
   
   #remove nestlings
   xcdf <- subset(xcdf, stage != 'nestling')
+  cat("# records after nestling filtering = ", nrow(xcdf),"\n")
   
   #remove poor quality
-  xcdf <- subset(xcdf, Quality %in% c("A", "B"))
+  if(!is.null(min_quality)) {
+    acceptable_quality <- LETTERS[1:which(LETTERS[1:5]==min_quality)]
+    xcdf <- subset(xcdf, Quality %in% acceptable_quality)
+    cat("# records after quality filtering = ", nrow(xcdf),"\n")
+  }
   
   #calculate clip duration from chr field
   bits <- stringr::str_split_fixed(xcdf$Length, ":", 2)
@@ -53,14 +87,26 @@ download_XC_species_clips <- function(path_out, code2ltr, n) {
   xcdf$secs <- as.numeric(bits[,2])
   xcdf$duration <- (xcdf$mins * 60) + xcdf$secs
   
-  #remove clips <10s
-  xcdf <- subset(xcdf, duration > 10)
+  #apply min_duration and max_duration
+  if(!is.null(min_length)) xcdf <- subset(xcdf, duration >= min_length)
+  cat("# records after min_length filtering = ", nrow(xcdf),"\n")
+  if(!is.null(max_length)) xcdf <- subset(xcdf, duration <= max_length)
+  cat("# records after max_length filtering = ", nrow(xcdf),"\n")
   
   #check there are still clips...
   if(nrow(xcdf)==0) return('fail')
   
-  #order remaining clips
-  xcdf <- xcdf[order(-xcdf$duration),]
+  #apply sample method to order remaining clips
+  if(sample == 'random') {
+    xcdf$random <- runif(n = nrow(xcdf))
+    xcdf <- xcdf[order(xcdf$random),]
+  }
+  if(sample == 'short') {
+    xcdf <- xcdf[order(xcdf$duration),]
+  }
+  if(sample == 'long') {
+    xcdf <- xcdf[order(-xcdf$duration),]
+  }
   
   #construct the output path
   download_loc <- file.path(path_out, paste0(spinfo$code2ltr, " - ", spinfo$english_name ))
