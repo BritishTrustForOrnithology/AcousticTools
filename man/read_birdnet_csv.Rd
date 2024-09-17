@@ -7,6 +7,8 @@
 read_birdnet_csv(file, format = "Audacity", include_fname = FALSE)
 }
 \arguments{
+\item{file}{= string, the path and filename of a BirdNET results file to be read.}
+
 \item{format}{= string, the format of the BirdNET output. One of Audacity,
 Raven or csv (currently only Audacity supported)}
 
