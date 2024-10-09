@@ -54,6 +54,5 @@ rename_audiomoth_files <- function(location, recordist = 'BTO', include_subfolde
       stop("A file already exists with the proposed new name.\nOld name = ",newname,"\nNew name = ",newname,"\nProceeding will cause files to be overwritten so process is terminated")
     }
     file.rename(from = audios[i], to = newname)
-    
   }
 }
