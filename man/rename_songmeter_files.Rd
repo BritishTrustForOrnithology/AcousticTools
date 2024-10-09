@@ -4,13 +4,15 @@
 \alias{rename_songmeter_files}
 \title{Rename SongMeter audio files to audio library format}
 \usage{
-rename_songmeter_files(location, recordist = "BTO")
+rename_songmeter_files(location, recordist = "BTO", include_subfolders = FALSE)
 }
 \arguments{
 \item{location, }{string, a site name of lat-long string. No dashes permitted
 as these are delimiters in the main file name format.}
 
 \item{recordist, }{string, name of the recordist (or BTO if not provided).}
+
+\item{include_subfolders, }{bool, whether audio files in subfolders should be included, default FALSE}
 }
 \description{
 Takes the standard format of a Wildlife Acoustics SongMeter audio file and

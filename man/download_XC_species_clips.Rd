@@ -4,7 +4,15 @@
 \alias{download_XC_species_clips}
 \title{Download Species Recordings from xeno-canto}
 \usage{
-download_XC_species_clips(path_out, code2ltr, n)
+download_XC_species_clips(
+  path_out,
+  code2ltr,
+  n,
+  min_length = 10,
+  max_length = NULL,
+  min_quality = NULL,
+  sample = "random"
+)
 }
 \arguments{
 \item{path_out, }{string, the main path where files are to be saved.}
@@ -12,13 +20,22 @@ download_XC_species_clips(path_out, code2ltr, n)
 \item{code2ltr, }{string, the two letter code of the species required}
 
 \item{n, }{numeric, the number of clips to return}
+
+\item{min_length, }{numeric, minimum clip length in seconds, default 10.}
+
+\item{max_length, }{numeric, maximum clip length in seconds.}
+
+\item{min_quality, }{character, minimum acceptable quality code (A:E).}
+
+\item{sample, }{character, strategy for sampling clips: random, short
+(favouring short clips), long (favouring long clips).}
 }
 \description{
 Uses the warbleR package and the xeno-canto API to download clips for a species.
 }
 \details{
-Pass in a species name and a number of clips desired. Some filtering is currently
-hard coded, e.g. only returns clips with quality A:B, removes nestlings and
-birds not seen, and any clips with other species reported in the background.
-It is possible these filters will result in zero returns.
+Pass in a species name and a number of clips desired. Some filtering is allowed
+baed on min and max clip duration and quality. Removal of nestlings,
+birds not seen, and any clips with other species reported in the background is
+currently hard-coded. It is possible these filters will result in zero returns.
 }
