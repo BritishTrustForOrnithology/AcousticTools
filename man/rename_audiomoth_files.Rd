@@ -4,15 +4,24 @@
 \alias{rename_audiomoth_files}
 \title{Rename AudioMoth audio files to audio library format}
 \usage{
-rename_audiomoth_files(location, recordist = "BTO", include_subfolders = FALSE)
+rename_audiomoth_files(
+  folder = NULL,
+  site,
+  recordist = "BTO",
+  include_subfolders = FALSE
+)
 }
 \arguments{
-\item{location, }{string, a site name or lat-long string. No dashes permitted
+\item{folder, }{string. Optional. Path to the audio files to be renamed. Can
+be omitted and GUI pop-up used instead}
+
+\item{site, }{string, a site name or lat-long string. No dashes permitted
 as these are delimiters in the main file name format.}
 
 \item{recordist, }{string, name of the recordist (or BTO if not provided).}
 
-\item{include_subfolders, }{bool, whether audio files in subfolders should be included, default FALSE}
+\item{include_subfolders, }{bool, whether audio files in subfolders should be
+included, default FALSE}
 }
 \description{
 Takes the standard format of an AudioMoth audio file and
@@ -23,5 +32,7 @@ AudioMoth audio files typically are named YYYYMMDD_HHMMSS. In large projects
 it is recommended to rename files to include location information to avoid
 downstream confusion. This function will rename files in the format:
 YYYYMMDD-HHMMSS-location-recordist-equipment.wav
-where location and recordist are provided in the function call.
+where location and recordist are provided in the function call. The folder
+of audio files to be renamed can be specified using a GUI interface or passed
+as a parameter in the function call.
 }
