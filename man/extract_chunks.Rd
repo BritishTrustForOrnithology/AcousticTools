@@ -9,7 +9,7 @@ extract_chunks(
   file_chunk,
   start,
   end,
-  chunk_duration = NULL,
+  chunk_duration,
   verbose = FALSE
 )
 }
@@ -35,8 +35,10 @@ chunk_duration can be set to longer than the length of a detection. For example,
 for a classifier that outputs detections of length 4s, setting chunk_duration to
 7 will export a 7-second chunk centred on the 4s of interest, thereby giving
 additional context to aid in verification, or for downstream training clips
-with jitter. Note that if a chunks is at the start or end of a file, silence
+with jitter. Note that if a chunk is at the start or end of a file, silence
 is padded onto the start or end of the chunk to maintain chunk_duration.
+
+Output directories will be created as required if not already present.
 }
 \examples{
 \dontrun{

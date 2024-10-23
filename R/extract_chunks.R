@@ -16,8 +16,10 @@
 #' for a classifier that outputs detections of length 4s, setting chunk_duration to 
 #' 7 will export a 7-second chunk centred on the 4s of interest, thereby giving 
 #' additional context to aid in verification, or for downstream training clips 
-#' with jitter. Note that if a chunks is at the start or end of a file, silence 
+#' with jitter. Note that if a chunk is at the start or end of a file, silence 
 #' is padded onto the start or end of the chunk to maintain chunk_duration.
+#' 
+#' Output directories will be created as required if not already present.
 
 #' @author Simon Gillings
 
@@ -30,7 +32,7 @@
 #' extract_chunks(file_wav = 'C:/long_audio_file.wav', file_chunk = 'C:/extracts/sparrow.wav', start = 4, end = 8, chunk_duration = 7)
 #' }
 
-extract_chunks <- function(file_wav, file_chunk, start, end, chunk_duration = NULL, verbose = FALSE) {
+extract_chunks <- function(file_wav, file_chunk, start, end, chunk_duration, verbose = FALSE) {
   #validate inputs
   if(!file.exists(file_wav)) stop("file_wav does not exist")
   if(!is.numeric(start)) stop("start must be a number")
