@@ -40,7 +40,7 @@ extract_chunks <- function(file_wav, file_chunk, start, end, chunk_duration, ver
   if(!is.numeric(end)) stop("end must be a number")
   if(!is.numeric(chunk_duration)) stop("chunk_duration must be a number")
   if(chunk_duration<=0) stop("chunk_duration must be greater than 0")
-  
+  if(chunk_duration < (end-start)) stop("chunk_duration is shorter than classifier resolution (start-end interval")
   
   
   #get info on original file
