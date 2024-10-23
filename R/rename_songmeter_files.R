@@ -57,7 +57,7 @@ rename_songmeter_files <- function(folder = NULL, site, recordist = 'BTO', inclu
     newname <- file.path(thisfolder, paste0(bits[,2], '-', bits[,3], '-', site, '-', recordist, '-XM.' , bits[,4]))
     #check if newname exists - stop if so as this should not happen
     if(file.exists(newname)) {
-      stop("A file already exists with the proposed newname.\nOld name = ",newname,"\nNew name = ",newname,"\nProceeding will cause files to be overwritten so process is terminated")
+      stop("A file already exists with the proposed newname.\nOld name = ",audios[i],"\nNew name = ",newname,"\nProceeding will cause files to be overwritten so process is terminated")
     }
     file.rename(from = audios[i], to = newname)
     

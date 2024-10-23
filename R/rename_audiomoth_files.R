@@ -59,7 +59,7 @@ rename_audiomoth_files <- function(folder = NULL, site, recordist = 'BTO', inclu
     newname <- file.path(thisfolder, paste0(bits[,1], '-', bits[,2],'-', site, '-', recordist, '-AM.' , bits[,3]))
     #check if newname exists - stop if so as this should not happen
     if(file.exists(newname)) {
-      stop("A file already exists with the proposed new name.\nOld name = ",newname,"\nNew name = ",newname,"\nProceeding will cause files to be overwritten so process is terminated")
+      stop("A file already exists with the proposed new name.\nOld name = ",audios[i],"\nNew name = ",newname,"\nProceeding will cause files to be overwritten so process is terminated")
     }
     file.rename(from = audios[i], to = newname)
   }
