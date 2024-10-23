@@ -48,6 +48,10 @@ rename_by_creation_date <- function(suffix, sep = "-") {
     
     #concatenate the new file name, folder/date[sep]time[sep]suffix.ext
     newname <- file.path(folder, paste0(dt,suffix,".",ext))
+    #check if newname exists - stop if so as this should not happen
+    if(file.exists(newname)) {
+      stop("A file already exists with the proposed newname.\nOld name = ",audios[i],"\nNew name = ",newname,"\nProceeding will cause files to be overwritten so process is terminated")
+    }
     file.rename(audios[i], newname)
   }
 }
