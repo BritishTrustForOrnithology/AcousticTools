@@ -26,3 +26,19 @@ Once you’ve done this you can install the package directly:
 ``` r
 devtools::install_github('BritishTrustForOrnithology/AcousticTools')
 ```
+
+
+## Usage
+
+### Possible BirdNET workflow
+
+The following workflow could be used with BirdNET.
+
+1 Use rename_songmeter_files() to convert all audio files to the preferred name format
+2 Run BirdNET using the BirdNET GUI and select one of R, CSV or Audacity output formats
+3 Run collate_birdnet_outputs to read and collate the outputs into a standard format
+4 Apply user-selected protocols to shortlist clips for verification. e.g. all of 
+species A and B, but only a 10% sample stratified by site, for species C. 
+5 Run extract_chunks() on a dataframe produced in 4) to produce short audio chunks 
+for manual checking 
+
