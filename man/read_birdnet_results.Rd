@@ -18,8 +18,8 @@ the last eight fields are only output by the R method:
 \item original_wav = the full path to the origina audio file
 \item start = start position in seconds of the detection
 \item end = end position in seconds of the detection
-\item birdnet_scientific_name = the scientific name of the species detectioned, following the taxonomy used by BirdNET
-\item birdnet_english_name = the English name of the species detectioned, following the taxonomy used by BirdNET
+\item birdnet_scientific_name = the scientific name of the species detected, following the taxonomy used by BirdNET
+\item birdnet_english_name = the English name of the species detected, following the taxonomy used by BirdNET
 \item score = BirdNET confidence score
 \item lat = latitude (if supplied) for filtering
 \item lon = longitude (if supplied) for filtering

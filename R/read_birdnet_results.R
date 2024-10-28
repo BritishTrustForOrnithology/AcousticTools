@@ -27,8 +27,8 @@
 #' * original_wav = the full path to the origina audio file
 #' * start = start position in seconds of the detection
 #' * end = end position in seconds of the detection
-#' * birdnet_scientific_name = the scientific name of the species detectioned, following the taxonomy used by BirdNET
-#' * birdnet_english_name = the English name of the species detectioned, following the taxonomy used by BirdNET
+#' * birdnet_scientific_name = the scientific name of the species detected, following the taxonomy used by BirdNET
+#' * birdnet_english_name = the English name of the species detected, following the taxonomy used by BirdNET
 #' * score = BirdNET confidence score
 #' * lat = latitude (if supplied) for filtering
 #' * lon = longitude (if supplied) for filtering
