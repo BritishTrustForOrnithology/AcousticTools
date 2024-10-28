@@ -34,11 +34,20 @@ devtools::install_github('BritishTrustForOrnithology/AcousticTools')
 
 The following workflow could be used with BirdNET.
 
-1. Use rename_songmeter_files() to convert all audio files to the preferred name format
-2. Run BirdNET using the BirdNET GUI and select one of R, CSV or Audacity output formats
-3. Run read_birdnet_results()s to read and collate the outputs into a standard format
-4. Apply user-selected protocols to shortlist clips for verification. e.g. all of 
-species A and B, but only a 10% sample stratified by site, for species C. 
-5. Run extract_chunks() on a dataframe produced in 4) to produce short audio chunks 
-for manual checking 
+1. Use rename_songmeter_files() to convert all audio files to the preferred name 
+format. This will make it easier later if any sampling is required by date/time
+2. Run BirdNET using the BirdNET GUI and select one of R, CSV or Audacity output 
+formats
+3. Run read_birdnet_results() to read and collate the outputs into a standard 
+format. This will return a dataframe. Save for next step
+4. Apply user-selected protocols to shortlist clips for verification. e.g. all 
+of species A and B, but only a 10% sample stratified by site, for species C. Use 
+this method to produce a dataframe where each row is a detection you want to 
+export. For each row make a unique filename for what you want that chunk to be 
+called.
+5. Now use extract_chunks() applied to each row of the dataframe produced in 4) 
+to produce short audio chunks for manual checking
 
+
+Simon Gillings
+October 2024
