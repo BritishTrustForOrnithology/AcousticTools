@@ -45,7 +45,7 @@ of species A and B, but only a 10% sample stratified by site, for species C. Use
 this method to produce a dataframe where each row is a detection you want to 
 export. For each row make a unique filename for what you want that chunk to be 
 called.
-5. Now use extract_chunks() applied to each row of the dataframe produced in 4) 
+5. Now use extract_chunk() applied to each row of the dataframe produced in 4) 
 to produce short audio chunks for manual checking
 
 
