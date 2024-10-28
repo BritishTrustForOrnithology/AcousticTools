@@ -1,7 +1,7 @@
-#' Extract audio chunks
+#' Extract audio chunk
 #' 
 #' @description
-#' Extract short audio chunks from longer files. Useful for extracting classifier 
+#' Extract short audio chunk from a longer file. Useful for extracting classifier 
 #' detections from long passive audio files.
 #' 
 #' @param file_wav = full path to the original audio file
@@ -29,10 +29,10 @@
 #' 
 #' @examples
 #' \dontrun{
-#' extract_chunks(file_wav = 'C:/long_audio_file.wav', file_chunk = 'C:/extracts/sparrow.wav', start = 4, end = 8, chunk_duration = 7)
+#' extract_chunk(file_wav = 'C:/long_audio_file.wav', file_chunk = 'C:/extracts/sparrow.wav', start = 4, end = 8, chunk_duration = 7)
 #' }
 
-extract_chunks <- function(file_wav, file_chunk, start, end, chunk_duration, verbose = FALSE) {
+extract_chunk <- function(file_wav, file_chunk, start, end, chunk_duration, verbose = FALSE) {
   #validate inputs
   if(!file.exists(file_wav)) stop("file_wav does not exist")
   if(!is.numeric(start)) stop("start must be a number")
