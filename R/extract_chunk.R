@@ -50,8 +50,14 @@ extract_chunk <- function(file_wav, file_chunk, start, end, chunk_duration, verb
   bits <- file_info$bits
   
   #check start and end are within the file
-  if(start > duration) stop("start falls outside this file")
-  if(end > duration) stop("end falls outside this file")
+  if(start > duration) {
+    warning("Skipping because start falls outside file: ", file_chunk, ". Duration: ", duration, ". Detection start: ", start)
+    next
+  }
+  if(end > duration) {
+    warning("Skipping because end falls outside file: ", file_chunk, ". Duration: ", duration, ". Detection end: ", end)
+    next
+  }
   
   
   #make destination folder if doesn't already exist
