@@ -1,8 +1,7 @@
 ---
 title: "Demo extracting clips based on BirdNET output"
 output:
-  html_document:
-    df_print: paged
+  rmarkdown::github_document
 ---
 
 Example code for reading BirdNET output and exporting detections in species subfolders
