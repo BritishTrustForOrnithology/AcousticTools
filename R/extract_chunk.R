@@ -46,7 +46,7 @@ extract_chunk <- function(file_wav, file_chunk, start, end, chunk_duration, verb
   #get info on original file
   file_info <- tuneR::readWave(filename = file_wav, header = TRUE)
   sr <- file_info$sample.rate
-  duration <- file_info$samples / file_info$sample.rate
+  duration <- ceiling(file_info$samples / file_info$sample.rate)
   bits <- file_info$bits
   
   #check start and end are within the file
