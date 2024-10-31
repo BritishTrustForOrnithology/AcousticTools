@@ -48,6 +48,8 @@ called.
 5. Now use extract_chunk() applied to each row of the dataframe produced in 4) 
 to produce short audio chunks for manual checking
 
+A full working eample of this approach can be found [here](https://github.com/BritishTrustForOrnithology/AcousticTools/blob/main/example_extracting_chunks.md)
+
 
 Simon Gillings
 October 2024
