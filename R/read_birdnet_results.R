@@ -51,6 +51,14 @@ read_birdnet_results <- function(folder, subfolders = TRUE)  {
              recursive = subfolders, 
              full.names = TRUE)
   
+  #preferred order of columns
+  pref_cols <- c("original_wav",
+                 "start", "end",
+                 "birdnet_scientific_name", "birdnet_english_name",
+                 "score",
+                 "lat", "lon",
+                 "week", "overlap", "sensitivity", "min_conf", "species_list", "model")
+  
   method <- NA
   
   #Combined methods
@@ -106,6 +114,9 @@ read_birdnet_results <- function(folder, subfolders = TRUE)  {
     detections$min_conf <- NA
     detections$species_list <- NA
     detections$model <- NA
+    
+    #fix col order
+    detections <- detections[,pref_cols]
   }
   
   if(method == 'CSV_IND') {
@@ -121,6 +132,9 @@ read_birdnet_results <- function(folder, subfolders = TRUE)  {
     detections$min_conf <- NA
     detections$species_list <- NA
     detections$model <- NA
+    
+    #fix col order
+    detections <- detections[, pref_cols]
   }
   
   if(method == 'R_ALL') {
@@ -130,6 +144,9 @@ read_birdnet_results <- function(folder, subfolders = TRUE)  {
     names(detections)[4] <- 'birdnet_scientific_name'
     names(detections)[5] <- 'birdnet_english_name'
     names(detections)[6] <- 'score'
+    
+    #fix col order
+    detections <- detections[, pref_cols]
   }
   
   if(method == 'R_IND') {
@@ -140,6 +157,9 @@ read_birdnet_results <- function(folder, subfolders = TRUE)  {
     names(detections)[4] <- 'birdnet_scientific_name'
     names(detections)[5] <- 'birdnet_english_name'
     names(detections)[6] <- 'score'
+    
+    #fix col order
+    detections <- detections[, pref_cols]
   }
   
   if(method == 'AUD_IND') {
@@ -167,15 +187,13 @@ read_birdnet_results <- function(folder, subfolders = TRUE)  {
     detections$min_conf <- NA
     detections$species_list <- NA
     detections$model <- NA
+    
+    #fix col order
+    detections <- detections[, pref_cols]
+    
+    
   }
-  
-  names(detections) <- c("original_wav", 
-                         "start", "end", 
-                         "birdnet_scientific_name", "birdnet_english_name", 
-                         "score", 
-                         "lat", "lon", 
-                         "week", "overlap", "sensitivity", "min_conf", "species_list", "model")
-  
+
   return(detections)
 }
 
