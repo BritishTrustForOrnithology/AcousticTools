@@ -103,8 +103,8 @@ read_birdnet_results <- function(folder, subfolders = TRUE)  {
   
   #for each method, read and prep
   if(method == 'CSV_ALL') {
-    file <- filepaths[grepl("BirdNET_CombinedTable.csv", filepaths)]
-    detections <- read.csv(file)
+    filepaths <- filepaths[grepl("BirdNET_CombinedTable.csv", filepaths)]
+    detections <- do.call(rbind,lapply(filepaths, read.csv))
     names(detections) <- c('start','end','birdnet_scientific_name', 'birdnet_english_name', 'score', 'original_wav')
     detections$lat <- NA
     detections$lon <- NA
@@ -138,8 +138,8 @@ read_birdnet_results <- function(folder, subfolders = TRUE)  {
   }
   
   if(method == 'R_ALL') {
-    file <- filepaths[grepl("BirdNET_RTable.csv", filepaths)]
-    detections <- read.csv(file)
+    filepaths <- filepaths[grepl("BirdNET_RTable.csv", filepaths)]
+    detections <- do.call(rbind,lapply(filepaths, read.csv))
     names(detections)[1] <-'original_wav'
     names(detections)[4] <- 'birdnet_scientific_name'
     names(detections)[5] <- 'birdnet_english_name'
