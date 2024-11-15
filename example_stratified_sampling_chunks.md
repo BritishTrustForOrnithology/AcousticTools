@@ -130,11 +130,9 @@ head(df[,c("original_wav", "start", "recording_start_dt", "detection_dt", "weekn
 
 Now do the stratified sampling. This can be done in nested loops but
 this gets messy the more strata there are. So I’ve tried to make this
-more easily scalable. In this example there are two methods for
-sampling: ‘random’ sampling or ‘tophits’, where the latter just gives
-the N highest scoring detections. Ultimately, I can pass the output
-locations to the extract_chunk function which will automatically make
-any required folders.
+more easily scalable by creating a list (strata) that contains the
+unique permutations of location, week and species that we have in the
+data.
 
 ``` r
 #decide how many chunks per stratum
@@ -144,17 +142,34 @@ nchunks <- 5
 strata_vars <- c('loc', 'weeknum', 'birdnet_english_name')
 
 #get the unique permutations of these - essentially the folders we will need
+#which columns contain these?
 strata_col_indx <- which(names(df) %in% strata_vars)
-
+#use col indices to get these columns and get  unique set
 strata <- unique(df[,strata_col_indx])
+head(strata)
+```
 
+    ##            birdnet_english_name    loc weeknum
+    ## 31                Brown Creeper ST4037      29
+    ## 2115                   Barn Owl ST4037      29
+    ## 2133  Black-crowned Night-Heron ST4037      29
+    ## 51450 Black-crowned Night-Heron ST4037      30
+    ## 53493             Brown Creeper ST4037      30
+    ## 65266             Brown Creeper ST7747      23
+
+Now we can use this to do the sampling for each stratum. In this example
+there are two methods for sampling: ‘random’ sampling or ‘tophits’,
+where the latter just gives the N highest scoring detections.
+Ultimately, I can pass the output locations to the extract_chunk
+function which will automatically make any required folders.
+
+``` r
 #how to select chunks
 method <- 'tophits'
 #method <- 'random'
 
 
 #iterate over strata
-
 #make a list to hold outputs
 strata_out <- list()
 
