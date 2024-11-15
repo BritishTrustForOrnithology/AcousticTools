@@ -120,6 +120,8 @@ read_birdnet_results <- function(folder, subfolders = TRUE)  {
   }
   
   if(method == 'CSV_IND') {
+    #ensure no non-birdnet files
+    filepaths <- filepaths[grepl('*.BirdNET.results.csv', filepaths)]
     #read all individual csvs
     detections <- do.call(rbind, lapply(filepaths, read.csv))
     #standardise column names
@@ -138,6 +140,7 @@ read_birdnet_results <- function(folder, subfolders = TRUE)  {
   }
   
   if(method == 'R_ALL') {
+    #ensure no non-birdnet files
     filepaths <- filepaths[grepl("BirdNET_RTable.csv", filepaths)]
     detections <- do.call(rbind,lapply(filepaths, read.csv))
     names(detections)[1] <-'original_wav'
@@ -150,6 +153,8 @@ read_birdnet_results <- function(folder, subfolders = TRUE)  {
   }
   
   if(method == 'R_IND') {
+    #ensure no non-birdnet files
+    filepaths <- filepaths[grepl('*.BirdNET.results.r.csv', filepaths)]
     #read all individual csvs
     detections <- do.call(rbind, lapply(filepaths, read.csv))
     #standardise column names
@@ -163,6 +168,9 @@ read_birdnet_results <- function(folder, subfolders = TRUE)  {
   }
   
   if(method == 'AUD_IND') {
+    #ensure no non-birdnet files
+    filepaths <- filepaths[grepl('*.BirdNET.results.txt', filepaths)]
+    #read all Audacity files
     detections <- list()
     for(i in 1:length(filepaths)) {
       temp <- read.csv(filepaths[i], sep='\t', header = FALSE, col.names = c('start', 'end','name','score'))
