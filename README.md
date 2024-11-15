@@ -50,6 +50,7 @@ to produce short audio chunks for manual checking
 
 A full working eample of this approach can be found [here](https://github.com/BritishTrustForOrnithology/AcousticTools/blob/main/example_extracting_chunks.md)
 
+A more involved work eample using stratified sampling can be found [here](https://github.com/BritishTrustForOrnithology/AcousticTools/blob/main/example_stratified_sampling_chunks.md)
 
 Simon Gillings
 October 2024
