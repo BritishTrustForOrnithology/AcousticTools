@@ -24,7 +24,6 @@
 #' (favouring short clips), long (favouring long clips).
 #' 
 #' 
-#' @export
 #' 
 download_XC_species_clips <- function(path_out, 
                                       code2ltr, 
