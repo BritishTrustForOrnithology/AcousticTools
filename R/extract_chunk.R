@@ -49,14 +49,14 @@ extract_chunk <- function(file_wav, file_chunk, start, end, chunk_duration, verb
   duration <- ceiling(file_info$samples / file_info$sample.rate)
   bits <- file_info$bits
   
-  #check start and end are within the file
+  #check start and end are within the file - if not exit function
   if(start > duration) {
     warning("Skipping because start falls outside file: ", file_chunk, ". Duration: ", duration, ". Detection start: ", start)
-    next
+    return()
   }
   if(end > duration) {
     warning("Skipping because end falls outside file: ", file_chunk, ". Duration: ", duration, ". Detection end: ", end)
-    next
+    return()
   }
   
   
