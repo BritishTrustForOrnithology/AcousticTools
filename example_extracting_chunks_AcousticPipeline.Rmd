@@ -1,0 +1,89 @@
+---
+title: "Demo extracting clips based on Acoustic Pipeline output"
+output:
+  rmarkdown::github_document
+---
+
+Example code for reading Acoustic Pipeline output and exporting detections in species subfolders
+
+```{r}
+#devtools::install_github('BritishTrustForOrnithology/AcousticTools')
+library(AcousticTools)
+
+#read and format an Acoustic Pipeline output
+#Need to know the original audio filename format. In this case, files had hyphen separators
+df <- AcousticTools::read_pipeline_results(file_csv = "C:/Users/simon.gillings/Downloads/sample_AP_output.csv", date_time_sep = '-')
+head(df)
+```
+
+Currently we have all detections. We might want to do some filtering or sampling. For this simple example I'm just going to limit to high scoring detections. More complex approaches, like site- or species-based stratified sampling could be adopted. See [this example](https://github.com/BritishTrustForOrnithology/AcousticTools/blob/main/example_stratified_sampling_chunks.md) for one approach
+```{r}
+
+#keep all high scoring detections 
+df <- subset(df, score >=0.95)
+```
+
+We have already computed the date and time of the detection. To make unique clips we need to decide on a file name format. I always use:
+YYYYMMDD-HHMMSS-Locname-Recordist-EquipmentCode-Species.wav
+
+You can create location names according to your study design. Here for simplicity I will use the sitename "Cambridge" for simplicity
+
+Now we can use the detection datetime to make a unique filename. In this example we will put chunks in species folders. And the recordings were made by BTO, so recordist is BTO. The equipment was a mono field recorder, for which I use the code XM.
+
+```{r}
+
+df$locname <- 'Cambridge'
+df$recordist <- 'BTO'
+df$equipment <- 'XM'
+
+#make the new filename. Use __ to infer unknown species at this point
+df$newfilename <- paste0(format(df$detection_start, "%Y%m%d-%H%M%S"),
+                         '-',
+                         df$locname,
+                         '-',
+                         df$recordist,
+                         '-',
+                         df$equipment,
+                         '-__.wav')
+                         
+
+#where will chunks be saved?
+path_export <- 'C:/exports'
+
+#make the full path and filename of each clip to be exported
+df$chunk_fullname <- file.path(path_export, df$english_name, df$newfilename)
+head(df$chunk_fullname)
+```
+
+Now we can do the exporting using AcousticTools::extract_chunk. In this example I will export 7 second chunks centred on the 4 second Pipeline detections. We pass df$offset as the start time of the detection, and knowing this classifier has a 4-second window, set end as df$offset+4. The function handles if the chunk falls at the start or end of the audio file and pads the clip with silence as required to make the 7s clip.
+```{r}
+#iterate over chunks - just do first 10 for demo. 
+n <- nrow(df)
+n <- 10
+for(i in 1:n) {
+  #not run as I don't have the audio to hand!
+  # AcousticTools::extract_chunk(file_wav = df$original_filename[i],
+  #                              file_chunk = df$chunk_fullname[i],
+  #                              start = df$offset[i], 
+  #                              end = df$offset[i] + 4, 
+  #                              chunk_duration = 7,
+  #                              verbose = TRUE)
+  
+}
+```
+## Fully anonymised chunk names
+
+If you want to export fully anonymised files this can be done as follows. This date time steps can be ignored in this case. **Remember to export the lookup so you know what L4G4Y06Y3YF2TFF.wav actually was!**
+```{r}
+library(stringi)
+#how many files need anonymised names
+num_files <- nrow(df)
+#make random strings of 15 characters and/or numbers
+df$randstrings <- stringi::stri_rand_strings(n = num_files, length = 15, pattern = "[A-Z0-9]")
+#make into filenames
+df$chunk_fullname_anonymised <- file.path(path_export, paste0(df$randstrings, ".wav"))
+head(df$chunk_fullname_anonymised)
+
+#remember to save the lookup!
+save(df, file = file.path(path_export, "detection_to_anonymised_names_lookup.Rdata"))
+```

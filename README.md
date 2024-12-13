@@ -23,7 +23,9 @@ The main functions so far are for:
 
 In several cases these functions assume that audio files are (or will be) in a standard naming format, consisting of:
 
-YYYYMMDD-HHMMSS-LocationName-RecordistName-EquipmentCode-SpeciesCode.wav
+YYYYMMDD-HHMMSS-LocationName-RecordistName-EquipmentCode-SpeciesCode.wav 
+or
+YYYYMMDD-HHMM-LocationName-RecordistName-EquipmentCode-SpeciesCode.wav 
 
 Using a consistent format makes it easier to write functions that know where to look for dates, times and species information. Also, making files in a common format with location name etc encoded in the filename reduces downstream confusion if similarly named files are divorced from their parent folders.
 
@@ -42,9 +44,10 @@ format. This will return a dataframe. Save for next step
 4. Apply user-selected protocols to shortlist clips for verification. e.g. all 
 of species A and B, but only a 10% sample stratified by site, for species C. Use 
 this method to produce a dataframe where each row is a detection you want to 
-export. For each row make a unique filename for what you want that chunk to be 
+export. 
+5. For each row, make a unique filename for what you want that chunk to be 
 called.
-5. Now use extract_chunk() applied to each row of the dataframe produced in 4) 
+6. Now use extract_chunk() applied to each row of the dataframe produced in 5) 
 to produce short audio chunks for manual checking
 
 A full working example of this approach can be found [here](https://github.com/BritishTrustForOrnithology/AcousticTools/blob/main/example_extracting_chunks_AcousticPipeline.md)
@@ -61,9 +64,10 @@ format. This will return a dataframe. Save for next step
 4. Apply user-selected protocols to shortlist clips for verification. e.g. all 
 of species A and B, but only a 10% sample stratified by site, for species C. Use 
 this method to produce a dataframe where each row is a detection you want to 
-export. For each row make a unique filename for what you want that chunk to be 
+export. 
+5. For each row make a unique filename for what you want that chunk to be 
 called.
-5. Now use extract_chunk() applied to each row of the dataframe produced in 4) 
+6. Now use extract_chunk() applied to each row of the dataframe produced in 5) 
 to produce short audio chunks for manual checking
 
 A full working eample of this approach can be found [here](https://github.com/BritishTrustForOrnithology/AcousticTools/blob/main/example_extracting_chunks.md)
