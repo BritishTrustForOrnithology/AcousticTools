@@ -25,6 +25,9 @@
 #' 
 read_pipeline_results <- function(file_csv, date_time_sep = '_') {
   
+  if(!file.exists(file_csv)) stop('file_csv does not exist')
+  if(!date_time_sep %in% c("-","_")) stop('date_time_sep must be either "_" or "-".')
+  
   #read the results file
   results <- read.csv(file_csv, stringsAsFactors = FALSE, na.strings = c('NA','null'))
   
