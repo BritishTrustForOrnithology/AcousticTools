@@ -70,9 +70,9 @@ called.
 6. Now use extract_chunk() applied to each row of the dataframe produced in 5) 
 to produce short audio chunks for manual checking
 
-A full working eample of this approach can be found [here](https://github.com/BritishTrustForOrnithology/AcousticTools/blob/main/example_extracting_chunks.md)
+A full working eample of this approach can be found [here](https://github.com/BritishTrustForOrnithology/AcousticTools/blob/main/example_extracting_chunks_BirdNET.md)
 
-A more involved work eample using stratified sampling can be found [here](https://github.com/BritishTrustForOrnithology/AcousticTools/blob/main/example_stratified_sampling_chunks.md)
+A more involved work eample using stratified sampling can be found [here](https://github.com/BritishTrustForOrnithology/AcousticTools/blob/main/example_stratified_sampling_chunks_BirdNET.md)
 
 Simon Gillings
 v2 December 2024
