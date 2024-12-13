@@ -44,7 +44,7 @@
 #' 
 #' 
 #' @examples
-#' \dontrun{}
+#' \dontrun{
 #' download_XC_species_clips(scientific_name = 'Galerida theklae', 
 #' species_code = 'THELA', path_out = 'E:/Acoustics/THELA', 
 #' month_folders = TRUE, n = 50, min_length = 10, min_quality = 'C', 
