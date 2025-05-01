@@ -1,7 +1,7 @@
 #' Download Species Recordings from xeno-canto
 #' 
 #' @description
-#' Uses the warbleR package and the xeno-canto API to download filtered samples 
+#' Uses the xeno-canto API (v3) to download filtered samples 
 #' of clips for a species, renamed and organised into folders.
 #' 
 #' @details
@@ -21,9 +21,11 @@
 #' audio labeling quicker as you can overwrite a pre-named file than have to 
 #' create a label file to match the audio file.
 #' 
-#' @import warbleR
 #' @import lubridate
 #' @import stringr
+#' @import httr
+#' @import jsonlite
+#' @import warbleR
 #' 
 #' @param scientific_name, string, the scientific name of the required species
 #' @param species_code, string, code to use when making new filenames
@@ -39,8 +41,12 @@
 #' @param drop_noderivs, bool, exclude clips with a No Derivatives license.
 #' @param drop_noncomms, bool, exclude clips with a Non-commercial license.
 #' @param sample, character, strategy for sampling clips: random, short 
-#' @param make_labels, bool, whether to make empty Audacity label files.
 #' (favouring short clips), long (favouring long clips).
+#' @param make_labels, bool, whether to make empty Audacity label files.
+#' @param used_clips, character vector, XC ID numbers of clips that have already 
+#' been labelled. These should be supplied as a character vector consisting of 
+#' just the numbers (i.e. omitting the XC prefix)
+#' @param xc_key, character, your API access key
 #' 
 #' 
 #' @examples
@@ -69,7 +75,9 @@ download_XC_species_clips <- function(scientific_name = NULL,
                                       no_noderivs = FALSE,
                                       no_noncomms = FALSE,
                                       sample = 'random',
-                                      make_labels = TRUE) {
+                                      make_labels = TRUE,
+                                      used_clips = NULL, 
+                                      xc_key = NULL) {
   #check inputs
   if(is.null(scientific_name)) stop('scientific_name must be supplied')
   if(is.null(species_code)) stop('species_code must be supplied')
@@ -81,34 +89,89 @@ download_XC_species_clips <- function(scientific_name = NULL,
   if(!is.null(sample)) {
     if(!sample %in% c('random',  'short', 'long')) stop('sample must be one of: random, short, long')
   }
+  if(!is.null(used_clips)) {
+    if(!is.character(used_clips)) stop("used clips must be a character vector")
+    if(any(grepl('XC', used_clips))) stop("used clips should not have XC prefixes")
+  }
   
+  if(is.null(xc_key)) stop('You must supply a xeno-canto API access key. See XC website')
   
   #check and create output location
   if(!dir.exists(path_out)) {
     warning("path_out does not exist; trying to make it now...")
-    trying <- dir.create(path_out)
+    trying <- dir.create(path_out, recursive= TRUE)
     if(trying==TRUE) warning('...path_out successfully created')
     if(trying==FALSE) stop('...unable to create path_out.')
   } 
   
   #create the search string and get the XC listings
-  searchstring <- paste(scientific_name)
-  xcdf <- query_xc(searchstring, 
-                   download = FALSE, 
-                   file.name = c("Genus", "Specific_epithet", "Date", "Time", "Country", "Recordist"), 
-                   parallel = 1, 
-                   pb = TRUE)
+  
+  scientific_name2 <- gsub(" ", "%20", scientific_name)
+  
+  #do initial page 1 response
+  response <- GET(paste0(
+    'https://xeno-canto.org/api/3/recordings?query=sp:"',
+    tolower(gsub(" ", "%20", scientific_name)),
+    '"&key=',
+    xc_key))
+  
+  # Check if the request was successful
+  if (status_code(response) == 200) {
+    # Parse the JSON content
+    json_data <- content(response, "text", encoding = "UTF-8")
+    parsed_data <- fromJSON(json_data, flatten = TRUE)
+    
+    # Convert to a dataframe
+    xcdf <- as.data.frame(parsed_data)
+  } else {
+    cat("API request failed with status:", status_code(response), "\n")
+  }
+  
+  #check how many pages in total
+  npages <- xcdf$numPages[1]
+  
+  #iterate over remaining pages and append results
+  if(npages > 1) {
+    for(p in 2:npages) {
+      response <- GET(paste0(
+        'https://xeno-canto.org/api/3/recordings?query=sp:"',
+        gsub(" ", "%20", scientific_name),
+        '"&key=',
+        xc_key, 
+        '&page=', p))
 
-  #double check correct species
-  #sometimes search string fails for spp like Riparia riparia
-  xcdf$scientific_name <- paste(xcdf$Genus, xcdf$Specific_epithet)
-  xcdf <- subset(xcdf, scientific_name == scientific_name)
+      # Check if the request was successful
+      if (status_code(response) == 200) {
+        # Parse the JSON content
+        json_data <- content(response, "text", encoding = "UTF-8")
+        parsed_data <- fromJSON(json_data, flatten = TRUE)
+        
+        # Convert to a dataframe
+        dfp <- as.data.frame(parsed_data)
+        xcdf <- rbind(xcdf, dfp)
+        rm(dfp)
+      }
+      
+    }
+  }
+  
+  
+  
+  
+
+  if(!is.null(used_clips)) {
+    #dropping used clips
+    before <- nrow(xcdf)
+    xcdf <- subset(xcdf, !recordings.id %in% used_clips)
+    after <- nrow(xcdf)
+    cat("# records after dropping recordings already labelled = ", nrow(xcdf),"\n")
+  }
   
   #filter the XC listings...
   #remove clips with other species
   if(no_background==TRUE) {
-    xcdf <- subset(xcdf, is.na(Other_species))
-    xcdf <- subset(xcdf, is.na(Other_species1))
+    xcdf$recordings.also <- ifelse(xcdf$recordings.also == 'character(0)', NA, xcdf$recordings.also)
+    xcdf <- subset(xcdf, is.na(recordings.also))
     cat("# records after other species filtering = ", nrow(xcdf),"\n")
     if(nrow(xcdf)==0) stop("No recordings left")
   }
@@ -116,14 +179,14 @@ download_XC_species_clips <- function(scientific_name = NULL,
   
   #remove not seen
   if(seen_only==TRUE) {
-    xcdf <- subset(xcdf, Bird_seen == 'yes')
+    xcdf <- subset(xcdf, recordings.animal.seen == 'yes')
     cat("# records after not-seen filtering = ", nrow(xcdf),"\n")
     if(nrow(xcdf)==0) stop("No recordings left")
   }
   
   #remove nestlings
   if(no_nestlings==TRUE) {
-    xcdf <- subset(xcdf, stage != 'nestling')
+    xcdf <- subset(xcdf, recordings.stage != 'nestling')
     cat("# records after nestling filtering = ", nrow(xcdf),"\n")
     if(nrow(xcdf)==0) stop("No recordings left")
   }
@@ -131,28 +194,28 @@ download_XC_species_clips <- function(scientific_name = NULL,
   #remove poor quality
   if(!is.null(min_quality)) {
     acceptable_quality <- LETTERS[1:which(LETTERS[1:5]==min_quality)]
-    xcdf <- subset(xcdf, Quality %in% acceptable_quality)
+    xcdf <- subset(xcdf, recordings.q %in% acceptable_quality)
     cat("# records after quality filtering = ", nrow(xcdf),"\n")
     if(nrow(xcdf)==0) stop("No recordings left")
   }
   
   #remove no derivatives
   if(no_noderivs==TRUE) {
-    xcdf <- subset(xcdf, !grepl("-nd", xcdf$License))
+    xcdf <- subset(xcdf, !grepl("-nd", recordings.lic))
     cat("# records after removal of no-derivatives license = ", nrow(xcdf),"\n")
     if(nrow(xcdf)==0) stop("No recordings left")
   }
   
   #remove non commercial
   if(no_noncomms==TRUE) {
-    xcdf <- subset(xcdf, !grepl("-nc-", xcdf$License))
+    xcdf <- subset(xcdf, !grepl("-nc-", recordings.lic))
     cat("# records after removal of no-derivatives license = ", nrow(xcdf),"\n")
     if(nrow(xcdf)==0) stop("No recordings left")
   }
   
   
   #calculate clip duration from chr field
-  bits <- stringr::str_split_fixed(xcdf$Length, ":", 2)
+  bits <- stringr::str_split_fixed(xcdf$recordings.length, ":", 2)
   xcdf$mins <- as.numeric(bits[,1])
   xcdf$secs <- as.numeric(bits[,2])
   xcdf$duration <- (xcdf$mins * 60) + xcdf$secs
@@ -187,119 +250,100 @@ download_XC_species_clips <- function(scientific_name = NULL,
     message('Fewer clips remaining than requested so exporting all')
   }
   
-  #now run download query with this set
-  xc <- query_xc(X = xcdf, 
-                 #file.name = c("Genus", "Specific_epithet", "Date", "Country"), 
-                 file.name = "Recording_ID", 
-                 parallel = 1, 
-                 path = path_out, 
-                 pb = TRUE)
   
-  #format file names
-  audios <- list.files(path = path_out, full.names = TRUE, pattern = "*.mp3")
-  
-  #check if any should be wavs
-  cat('Correct extensions for existing WAVs...\n\n')
-  xcdf$iswav <- ifelse(grepl(pattern = '.wav', x = xcdf$file.name), TRUE, FALSE)
-
-  xcdfwavs <- subset(xcdf, iswav == TRUE)
-  if(nrow(xcdfwavs)>0) {
-    for(w in 1:nrow(xcdfwavs)) {
-      id <- xcdfwavs$Recording_ID[w]
-      #find this audio file
-      thisaudio <- audios[grepl(id, audios)]
-      #rename it
-      thisaudio2 <- gsub('.mp3','.wav', thisaudio)
-      file.rename(thisaudio, thisaudio2)
-      rm(thisaudio)
-      rm(thisaudio2)
-    }
-  }
-  
-  #convert the remaining mp3s into wavs
-  cat('Convert remaining MP3s to WAVs...\n\n')
-  mp3s <- list.files(path = path_out, full.names = TRUE, pattern = "*.mp3")
-  for(m in 1:length(mp3s)) {
-    cat(basename(mp3s[m]),'\n')
-    #read the mp3
-    audiotemp <- read_sound_file(mp3s[m])
-    
-    #make the wav filename
-    file_wav <- gsub('.mp3', '.wav', mp3s[m])
-    
-    #write the wav
-    file_corrupt <- tryCatch({
-      # Attempt to read the file
-      writeWave(audiotemp, file_wav)
-      0
-    }, error = function(e) {
-      # Handle the error
-      1
-    })
-    
-    #remove the mp3
-    if(file_corrupt == 0) file.remove(mp3s[m])
-    gc(verbose = FALSE)
-  }
-  
-  
-  #format file names
-  cat('Format file names...\n\n')
-  #split the names  
-  audios <- list.files(path = path_out, full.names = FALSE)
-  
-  #format columns for making filename - needs some cleaning!
+  #do some column formatting
   #Dates
-  xcdf$Datestr <- format(as.Date(xcdf$Date), "%Y%m%d")
-  xcdf$Datestr <- ifelse(is.na(xcdf$Datestr), '19700101', xcdf$Datestr)
-
+  xcdf$datestr <- format(as.Date(xcdf$recordings.date), "%Y%m%d")
+  xcdf$datestr <- ifelse(is.na(xcdf$datestr), '19700101', xcdf$datestr)
+  xcdf$month <- lubridate::month(as.Date(xcdf$recordings.date))
+  xcdf$month <- ifelse(is.na(xcdf$month), 0, xcdf$month)
+  
   #Times
   # Step 1: Standardize "HH:MM" or "H:MM" formats
-  xcdf$Timestr <- xcdf$Time
-  xcdf$Timestr <- gsub("^(\\d):", "0\\1:", xcdf$Timestr) # Add leading zero to single-digit hours colon variant
-  xcdf$Timestr <- gsub("^(\\d)\\.", "0\\1:", xcdf$Timestr) # Add leading zero to single-digit hours dot variant
-  xcdf$Timestr <- gsub("^(\\d)-", "0\\1:", xcdf$Timestr) # Add leading zero to single-digit hours hyphen variant
-  xcdf$Timestr <- gsub("^(\\d{2}):(\\d{2}).*", "\\1\\2", xcdf$Timestr) # Keep HHMM from HH:MM
-  xcdf$Timestr <- gsub("^(\\d{2})\\.(\\d{2}).*", "\\1\\2", xcdf$Timestr) # Keep HHMM from HH.MM
-  xcdf$Timestr <- gsub("^(\\d{2})-(\\d{2}).*", "\\1\\2", xcdf$Timestr) # Keep HHMM from HH-MM
+  xcdf$timestr <- xcdf$recordings.time
+  xcdf$timestr <- gsub("^(\\d):", "0\\1:", xcdf$timestr) # Add leading zero to single-digit hours colon variant
+  xcdf$timestr <- gsub("^(\\d)\\.", "0\\1:", xcdf$timestr) # Add leading zero to single-digit hours dot variant
+  xcdf$timestr <- gsub("^(\\d)-", "0\\1:", xcdf$timestr) # Add leading zero to single-digit hours hyphen variant
+  xcdf$timestr <- gsub("^(\\d{2}):(\\d{2}).*", "\\1\\2", xcdf$timestr) # Keep HHMM from HH:MM
+  xcdf$timestr <- gsub("^(\\d{2})\\.(\\d{2}).*", "\\1\\2", xcdf$timestr) # Keep HHMM from HH.MM
+  xcdf$timestr <- gsub("^(\\d{2})-(\\d{2}).*", "\\1\\2", xcdf$timestr) # Keep HHMM from HH-MM
   # Step 2: Handle "HHMM" without colon
-  xcdf$Timestr <- gsub("^(\\d{4})$", "\\1", xcdf$Timestr)
+  xcdf$timestr <- gsub("^(\\d{4})$", "\\1", xcdf$timestr)
   # Step 3: convert invalid to 0000
-  valid_format <- grepl("^(\\d{4})$", xcdf$Timestr) # Keep only HHMM
-  xcdf$Timestr[!valid_format] <- "0000"
-
-  #create newname
-  xcdf$oldname <- with(xcdf, paste0("-",Recording_ID, ".wav"))
-  xcdf$newname <- with(xcdf, paste0(Datestr,"-",Timestr,"-",Country,"-XenoCantoContributor-XX-", species_code, "-(XC", Recording_ID, ").wav"))
-
-  #rename files
-  file.rename(from = file.path(path_out, xcdf$oldname), 
-              to = file.path(path_out,xcdf$newname)
-              )
+  valid_format <- grepl("^(\\d{4})$", xcdf$timestr) # Keep only HHMM
+  xcdf$timestr[!valid_format] <- "0000"
   
-  #split into month folders for easier way of getting seasonal coverage of clips
+  
+  #if split into month folders, make them
   if(month_folders == TRUE) {
-    cat('Splitting into month folders...\n\n')
-    audios <- list.files(path = path_out, full.names = FALSE)
-    months <- unique(substr(audios,5,6))
-    for(i in 1:length(months)) {
-      newloc <- file.path(path_out, months[i])
+    xcmonths <- unique(xcdf$month)
+    for(i in 1:length(xcmonths)) {
+      newloc <- file.path(path_out, xcmonths[i])
       dir.create(newloc, recursive = TRUE)
-      tomove <- subset(audios, substr(audios,5,6) == months[i])
-      file.rename(from = file.path(path_out, tomove),
-                  to = file.path(newloc, tomove))
     }
   } 
   
-  #make empty default label file
-  if(make_labels==TRUE) {
-    cat('Make empty labels...\n\n')
-    audio <- list.files(path_out, pattern = "*wav", full.names = TRUE, recursive = TRUE)
-    for(a in 1:length(audio)) {
-      file_txt <- gsub('.wav', '.txt', audio[a])
+  
+  #iterate over list and download, formatting, making label files etc as needed
+  for(i in 1:nrow(xcdf)) {
+    this <- xcdf[i,]
+    url <- this$recordings.file
+    id <- this$recordings.id
+    
+    #what type of file?
+    ext <- tolower(substr(this$recordings.file.name, 
+                  nchar(this$recordings.file.name)-3, 
+                  nchar(this$recordings.file.name)))
+    
+    destfilename <- with(xcdf, paste0(this$datestr,"-",
+                            this$timestr,"-",
+                            gsub(" ","",this$recordings.cnt),
+                            "-XenoCantoContributor-XX-", 
+                            species_code, 
+                            "-(XC", 
+                            this$recordings.id, 
+                            ")",
+                            ext))
+    if(month_folders==TRUE) {
+      destfilepath <- file.path(path_out, this$month, destfilename)
+      
+    }
+    #and download
+    download.file(url, destfilepath, mode = "wb")          # 'wb' for binary files
+    
+    #convert mp3?
+    if(ext == ".mp3") {
+      #read the mp3
+      audiotemp <- warbleR::read_sound_file(destfilepath)
+      
+      #make the wav filename
+      file_wav <- gsub('.mp3', '.wav', destfilepath)
+      
+      #write the wav
+      file_corrupt <- tryCatch({
+        # Attempt to read the file
+        writeWave(audiotemp, file_wav)
+        0
+      }, error = function(e) {
+        # Handle the error
+        1
+      })
+      
+      #remove the mp3
+      if(file_corrupt == 0) file.remove(destfilepath)
+      gc(verbose = FALSE)
+    }
+    
+    
+  
+  
+    #make empty default label file
+    if(make_labels==TRUE) {
+      cat('Make empty labels...\n\n')
+      file_txt <- gsub('.mp3|.wav', '.txt', destfilepath)
       writeLines(text = '', con = file_txt)
     }
-  }
 
+  } #end download loop
 
 }
