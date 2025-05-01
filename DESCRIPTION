@@ -12,4 +12,7 @@ Imports:
   rstudioapi,
   stringr,
   tools,
-  tuneR
+  tuneR,
+  httr,
+  jsonlite,
+  warbleR
