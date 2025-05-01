@@ -19,7 +19,9 @@ download_XC_species_clips(
   no_noderivs = FALSE,
   no_noncomms = FALSE,
   sample = "random",
-  make_labels = TRUE
+  make_labels = TRUE,
+  used_clips = NULL,
+  xc_key = NULL
 )
 }
 \arguments{
@@ -45,17 +47,23 @@ download_XC_species_clips(
 
 \item{no_nestlings, }{bool, exclude clips of nestlings.}
 
-\item{sample, }{character, strategy for sampling clips: random, short}
-
-\item{make_labels, }{bool, whether to make empty Audacity label files.
+\item{sample, }{character, strategy for sampling clips: random, short
 (favouring short clips), long (favouring long clips).}
+
+\item{make_labels, }{bool, whether to make empty Audacity label files.}
+
+\item{used_clips, }{character vector, XC ID numbers of clips that have already
+been labelled. These should be supplied as a character vector consisting of
+just the numbers (i.e. omitting the XC prefix)}
+
+\item{xc_key, }{character, your API access key}
 
 \item{drop_noderivs, }{bool, exclude clips with a No Derivatives license.}
 
 \item{drop_noncomms, }{bool, exclude clips with a Non-commercial license.}
 }
 \description{
-Uses the warbleR package and the xeno-canto API to download filtered samples
+Uses the xeno-canto API (v3) to download filtered samples
 of clips for a species, renamed and organised into folders.
 }
 \details{
