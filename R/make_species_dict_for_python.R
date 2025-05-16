@@ -56,9 +56,9 @@ make_species_dict_for_python <- function(path_out) {
   mammals <- subset(mammals, !is.na(code5ltr), select = c('master_taxon_id', 'scientific_name', 'english_name','taxa', 'code5ltr', 'sort_order'))
   names(mammals)[which(names(mammals)=='code5ltr')] <- 'code'
 
-  print(names(birds))
-  print(names(amphi))
-  print(names(mammals))
+  # print(names(birds))
+  # print(names(amphi))
+  # print(names(mammals))
   
   all <- rbind(birds, mammals, amphi)
   
