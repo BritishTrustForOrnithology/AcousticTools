@@ -9,6 +9,7 @@
 #' @param start = start time of the detection in file_wav, in seconds
 #' @param end = end time of the detection in file_wav, in seconds
 #' @param chunk_duration = desired length of the chunk, in seconds. See Details
+#' @param mono = should stereo recordings be exported as mono?
 #' @param verbose = should messages be printed to console?
 
 #' @details
@@ -32,7 +33,7 @@
 #' extract_chunk(file_wav = 'C:/long_audio_file.wav', file_chunk = 'C:/extracts/sparrow.wav', start = 4, end = 8, chunk_duration = 7)
 #' }
 
-extract_chunk <- function(file_wav, file_chunk, start, end, chunk_duration, verbose = FALSE) {
+extract_chunk <- function(file_wav, file_chunk, start, end, chunk_duration, mono = TRUE, verbose = FALSE) {
   #validate inputs
   if(!file.exists(file_wav)) stop("file_wav does not exist")
   if(!is.numeric(start)) stop("start must be a number")
@@ -45,6 +46,7 @@ extract_chunk <- function(file_wav, file_chunk, start, end, chunk_duration, verb
   
   #get info on original file
   file_info <- tuneR::readWave(filename = file_wav, header = TRUE)
+  channels <- file_info$channels
   sr <- file_info$sample.rate
   duration <- ceiling(file_info$samples / file_info$sample.rate)
   bits <- file_info$bits
@@ -58,7 +60,6 @@ extract_chunk <- function(file_wav, file_chunk, start, end, chunk_duration, verb
     warning("Skipping because end falls outside file: ", file_chunk, ". Duration: ", duration, ". Detection end: ", end)
     return()
   }
-  
   
   #make destination folder if doesn't already exist
   path_out <- dirname(file_chunk)
@@ -105,6 +106,12 @@ extract_chunk <- function(file_wav, file_chunk, start, end, chunk_duration, verb
                            from = chunk_start_seconds,
                            to = chunk_end_seconds,
                            unit = "seconds")
+  
+  #remix stereo to mono?
+  if(channels == 2 & mono == TRUE) {
+    chunk <- tuneR::mono(chunk, which = "both")  
+  }
+  
   
   if(exists("silence_start")) {
     if(verbose) cat('Padding start\n')
