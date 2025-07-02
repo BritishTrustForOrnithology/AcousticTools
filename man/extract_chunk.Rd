@@ -10,6 +10,7 @@ extract_chunk(
   start,
   end,
   chunk_duration,
+  mono = TRUE,
   verbose = FALSE
 )
 }
@@ -23,6 +24,8 @@ extract_chunk(
 \item{end}{= end time of the detection in file_wav, in seconds}
 
 \item{chunk_duration}{= desired length of the chunk, in seconds. See Details}
+
+\item{mono}{= should stereo recordings be exported as mono?}
 
 \item{verbose}{= should messages be printed to console?}
 }
