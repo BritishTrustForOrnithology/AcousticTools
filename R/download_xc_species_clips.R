@@ -361,6 +361,7 @@ download_XC_species_clips <- function(scientific_name = NULL,
       writeLines(text = '', con = file_txt)
     }
 
+    Sys.sleep(4)
   } #end download loop
 
 }
