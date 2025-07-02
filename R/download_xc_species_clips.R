@@ -32,6 +32,7 @@
 #' @param path_out, string, a folder where files are to be saved.
 #' @param month_folders, bool, whether to put files in month folders.
 #' @param n, numeric, the number of clips to return
+#' @param type, character, a predefined vocalisation type as used in XC
 #' @param min_length, numeric, minimum clip length in seconds, default 10.
 #' @param max_length, numeric, maximum clip length in seconds.
 #' @param min_quality, character, minimum acceptable quality code (A:E).
@@ -66,6 +67,7 @@ download_XC_species_clips <- function(scientific_name = NULL,
                                       path_out, 
                                       month_folders = TRUE,
                                       n, 
+                                      type = NULL,
                                       min_length = 10, 
                                       max_length = NULL, 
                                       min_quality = NULL,
@@ -168,6 +170,11 @@ download_XC_species_clips <- function(scientific_name = NULL,
   }
   
   #filter the XC listings...
+  if(!is.null(type)) {
+    xcdf <- subset(xcdf, grepl(type, recordings.type))
+  }
+  
+  
   #remove clips with other species
   if(no_background==TRUE) {
     xcdf$recordings.also <- ifelse(xcdf$recordings.also == 'character(0)', NA, xcdf$recordings.also)
@@ -245,8 +252,7 @@ download_XC_species_clips <- function(scientific_name = NULL,
       xcdf <- xcdf[1:n,]
       
     }
-  }
-  if(n>=nrow(xcdf)) {
+  } else  {
     message('Fewer clips remaining than requested so exporting all')
   }
   
@@ -272,6 +278,7 @@ download_XC_species_clips <- function(scientific_name = NULL,
   # Step 3: convert invalid to 0000
   valid_format <- grepl("^(\\d{4})$", xcdf$timestr) # Keep only HHMM
   xcdf$timestr[!valid_format] <- "0000"
+  xcdf$timestr <- paste0(xcdf$timestr,"00")
   
   
   #if split into month folders, make them
@@ -308,8 +315,18 @@ download_XC_species_clips <- function(scientific_name = NULL,
       destfilepath <- file.path(path_out, this$month, destfilename)
       
     }
+    
     #and download
-    download.file(url, destfilepath, mode = "wb")          # 'wb' for binary files
+    download_fail <- tryCatch({
+      # Attempt to download the file
+      download.file(url, destfilepath, mode = "wb")          # 'wb' for binary files
+    }, error = function(e) {
+      # Print error and jump to next file
+      cat('Cannot download', url, "\n")
+      next
+    })
+    
+    
     
     #convert mp3?
     if(ext == ".mp3") {
