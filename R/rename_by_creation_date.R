@@ -32,7 +32,7 @@ rename_by_creation_date <- function(suffix, sep = "-") {
   suffix <- ifelse(substr(suffix,1,1) != sep, paste0(sep, suffix), suffix)  
   
   #get the list of audio files
-  audios <- list.files(path = folder, pattern = "*.flac|*.mp3|*.wav", full.names = TRUE)
+  audios <- list.files(path = folder, pattern = "*.flac|*.mp3|*.wav|*.WAV", full.names = TRUE)
   
   #iterate over files
   for(i in 1:length(audios)) {
