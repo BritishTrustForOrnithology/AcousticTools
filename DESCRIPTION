@@ -15,4 +15,6 @@ Imports:
   tuneR,
   httr,
   jsonlite,
-  warbleR
+  warbleR,
+  lubridate,
+  BTOTools

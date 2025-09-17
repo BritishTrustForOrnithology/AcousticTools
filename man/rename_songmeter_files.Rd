@@ -2,7 +2,7 @@
 % Please edit documentation in R/rename_songmeter_files.R
 \name{rename_songmeter_files}
 \alias{rename_songmeter_files}
-\title{Rename SongMeter audio files to audio library format}
+\title{Rename SongMeter audio files to BTO audio library format}
 \usage{
 rename_songmeter_files(
   folder = NULL,
