@@ -10,6 +10,7 @@ download_XC_species_clips(
   path_out,
   month_folders = TRUE,
   n,
+  type = NULL,
   min_length = 10,
   max_length = NULL,
   min_quality = NULL,
@@ -34,6 +35,8 @@ download_XC_species_clips(
 \item{month_folders, }{bool, whether to put files in month folders.}
 
 \item{n, }{numeric, the number of clips to return}
+
+\item{type, }{character, a predefined vocalisation type as used in XC}
 
 \item{min_length, }{numeric, minimum clip length in seconds, default 10.}
 
