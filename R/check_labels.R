@@ -31,20 +31,20 @@ check_labels <- function(folder = NULL) {
   
   #prepare the species dictionary as used for labelling
   data("global_species_lookup")
-  gsp <- global_species_lookup
+  gsl <- global_species_lookup
   #deal with Pied Wag slash
-  gsp$english_name <- ifelse(gsp$code2ltr=='PW', 'Pied-White Wagtail', gsp$english_name)
+  gsl$english_name <- ifelse(gsl$code2ltr=='PW', 'Pied-White Wagtail', gsl$english_name)
   #replace some special codes 
-  gsp$english_name <- ifelse(gsp$code2ltr=='XX', 'Unidentified', gsp$english_name)
+  gsl$english_name <- ifelse(gsl$code2ltr=='XX', 'Unidentified', gsl$english_name)
   # #convert dot to underscore as used in filenames
-  gsp$code2ltr <- gsub(pattern = '.', '_', gsp$code2ltr, fixed = TRUE)
+  gsl$code2ltr <- gsub(pattern = '.', '_', gsl$code2ltr, fixed = TRUE)
   #remove numeric mammal codes
-  gsp$code2ltr <- ifelse(!is.na(suppressWarnings(as.numeric(gsp$code2ltr))), NA, gsp$code2ltr)
-  gsp$code <- gsp$code2ltr
-  gsp$code <- ifelse(is.na(gsp$code), gsp$code5ltr, gsp$code)
-  gsp$code <- ifelse(is.na(gsp$code), gsp$pipeline_code, gsp$code)
-  gsp <- subset(gsp, !is.na(gsp$code))
-  gsp$code <- toupper(gsp$code)
+  gsl$code2ltr <- ifelse(!is.na(suppressWarnings(as.numeric(gsl$code2ltr))), NA, gsl$code2ltr)
+  gsl$code <- gsl$code2ltr
+  gsl$code <- ifelse(is.na(gsl$code), gsl$code5ltr, gsl$code)
+  gsl$code <- ifelse(is.na(gsl$code), gsl$pipeline_code, gsl$code)
+  gsl <- subset(gsl, !is.na(gsl$code))
+  gsl$code <- toupper(gsl$code)
   
   #get the list of label files
   files_labels <- list.files(path_input, pattern = '*.txt', recursive = FALSE, ignore.case = TRUE, full.names = TRUE)
@@ -61,7 +61,7 @@ check_labels <- function(folder = NULL) {
     #check the label string...
     bits <- stringr::str_split_fixed(lab$lab, "-", n=Inf)
     #are all species codes recognised?
-    sppcodes_accepted <- as.numeric(all(bits[,1] %in% c(gsp$code, 'ZZ','XHUMAN')))
+    sppcodes_accepted <- as.numeric(all(bits[,1] %in% c(gsl$code, 'ZZ','XHUMAN')))
     #are all call type codes recognised?
     callcodes_accepted <- as.numeric(all(bits[,2] %in% c('F','S','C','D','Z')))
     #if channels are provided, are they acceptable?
