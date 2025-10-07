@@ -1,6 +1,6 @@
 Package: AcousticTools
 Title: Tools for Manipulation Of Acoustic Data
-Version: 0.0.0.9000
+Version: 1.1
 Authors@R: 
     person("Simon", "Gillings", , "simon.gillings@bto.org", role = c("aut", "cre"))
 Description: Ultilities for BTO acoustic projects, from managing and manipulating audio data, to interpreting classifier outputs and organising verification tasks.
