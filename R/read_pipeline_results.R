@@ -51,7 +51,7 @@ read_pipeline_results <- function(file_csv, date_time_sep = '_') {
   results$detection_start <- as.POSIXct(paste(results$actual_date, results$time, sep="_"), format = "%d/%m/%Y_%H:%M:%S")
   
   #finally, get the offset between start of file and start of detection in seconds
-  results$offset <- as.numeric(results$detection_start - results$file_start)
+  results$offset <- as.numeric(difftime(results$detection_start, results$file_start, units = 'secs'))
   
   #check that none of the offsets are negative
   if(min(results$offset)<0) stop('Error - offsets cannot be zero. Check date times are being correctly interpreted')
