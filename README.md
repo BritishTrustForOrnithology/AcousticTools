@@ -18,6 +18,8 @@ The main functions so far are for:
 * saving audio chunks for species detections in species folders
 * creating empty Audacity label files for each audio files
 * downloading and manipulating audio clips from xeno-canto
+* checking and validating Audacity label files
+* organising audio/label files into species folders
 
 ## Assumptions
 
@@ -30,6 +32,14 @@ YYYYMMDD-HHMM-LocationName-RecordistName-EquipmentCode-SpeciesCode.wav
 Using a consistent format makes it easier to write functions that know where to look for dates, times and species information. Also, making files in a common format with location name etc encoded in the filename reduces downstream confusion if similarly named files are divorced from their parent folders.
 
 ## Usage
+
+### Labelled audio management
+
+After labelling (annotating) audio files the wav+txt files need to be moved into relevant taxa and species folders. At the same time it is sensible to run some QA checks on the label files, e.g. to check for missing times, incorrect species codes, or incorrect channel labels. There are two functions to assist with this:
+
+* check_labels() will return a list of common errors in a folder of labels.
+* organise_labelled_clips() will move all audio+txt files from one folder to the relevant species folders
+
 
 ### Possible Acoustic Pipeline workflow
 
