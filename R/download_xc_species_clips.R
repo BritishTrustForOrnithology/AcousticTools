@@ -25,7 +25,6 @@
 #' @import stringr
 #' @import httr
 #' @import jsonlite
-#' @import warbleR
 #' 
 #' @param scientific_name, string, the scientific name of the required species
 #' @param species_code, string, code to use when making new filenames
@@ -331,7 +330,7 @@ download_XC_species_clips <- function(scientific_name = NULL,
     #convert mp3?
     if(ext == ".mp3") {
       #read the mp3
-      audiotemp <- warbleR::read_sound_file(destfilepath)
+      audiotemp <- tuneR::readMP3(destfilepath)
       
       #make the wav filename
       file_wav <- gsub('.mp3', '.wav', destfilepath)

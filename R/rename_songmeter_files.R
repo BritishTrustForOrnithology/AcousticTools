@@ -1,4 +1,4 @@
-#' Rename SongMeter audio files to audio library format
+#' Rename SongMeter audio files to BTO audio library format
 #' 
 #' @description
 #' Takes the standard format of a Wildlife Acoustics SongMeter audio file and 
