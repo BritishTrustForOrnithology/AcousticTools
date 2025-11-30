@@ -8,7 +8,8 @@ rename_songmeter_files(
   folder = NULL,
   site,
   recordist = "BTO",
-  include_subfolders = FALSE
+  include_subfolders = FALSE,
+  include_label_files = TRUE
 )
 }
 \arguments{
@@ -22,17 +23,22 @@ as these are delimiters in the main file name format.}
 
 \item{include_subfolders, }{bool, whether audio files in subfolders should be
 included, default FALSE}
+
+\item{include_label_file, }{bool, whether to rename label files in same folder}
 }
 \description{
-Takes the standard format of a Wildlife Acoustics SongMeter audio file and
-converts to BTO audible recordings audio library format.
+Takes the standard format of a Wildlife Acoustics SongMeter audio file name and
+converts to BTO audible recordings audio library format. Optionally can also
+rename label (.txt) files for instances where labelling was done prior to
+renaming of the audio file.
 }
 \details{
 SongMeter audio files typically are named PREFIX_YYYYMMDD_HHMMSS. Unless
 preconfigured the PREFIX is the device code and not human-friendly for
 subsequent work. This function will rename files in the format:
-YYYYMMDD-HHMMSS-location-recordist-equipment.wav
+YYYYMMDD-HHMMSS-location-recordist-PREFIX.wav
 where location and recordist are provided in the function call. The folder
 of audio files to be renamed can be specified using a GUI interface or passed
-as a parameter in the function call.
+as a parameter in the function call. The PREFIX is retained in the space used
+for recording equipment code.
 }

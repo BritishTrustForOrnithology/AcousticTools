@@ -25,5 +25,6 @@ If NULL this will default to the first species listed in the label string}
 \description{
 This utility is for extracting fixed-length audio chunks from
 longer soundscape files on the basis of instantaneous (zero-length) labels.
-It assumes that labels are of the form \link{BT-S,GT-S,ST-F}.
+It assumes that labels are of the form BT-S,GT-S,ST-F, or WS-F. If no call
+type code is given, a 'S' code (stationary/standard) is assumed.
 }
