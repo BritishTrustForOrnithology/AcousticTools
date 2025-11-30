@@ -53,6 +53,8 @@ create_chunks_from_labels <- function(path_in = NULL, path_out = NULL, primary_s
       
       #turn the label string into a list of labels
       labs <- strsplit(gsub("^\\[|\\]$", "", labels1$label), ",")[[1]]
+      #skip if empty (a label without a label string)
+      if(length(labs) == 0) next
       
       #add default S where call type is missing
       labs <- ifelse(grepl("-", labs), labs, paste0(labs, "-S"))
