@@ -1,17 +1,20 @@
 #' Rename SongMeter audio files to BTO audio library format
 #' 
 #' @description
-#' Takes the standard format of a Wildlife Acoustics SongMeter audio file and 
-#' converts to BTO audible recordings audio library format.
+#' Takes the standard format of a Wildlife Acoustics SongMeter audio file name and 
+#' converts to BTO audible recordings audio library format. Optionally can also 
+#' rename label (.txt) files for instances where labelling was done prior to 
+#' renaming of the audio file.
 #' 
 #' @details
 #' SongMeter audio files typically are named PREFIX_YYYYMMDD_HHMMSS. Unless 
 #' preconfigured the PREFIX is the device code and not human-friendly for 
 #' subsequent work. This function will rename files in the format:
-#' YYYYMMDD-HHMMSS-location-recordist-equipment.wav
+#' YYYYMMDD-HHMMSS-location-recordist-PREFIX.wav
 #' where location and recordist are provided in the function call. The folder 
 #' of audio files to be renamed can be specified using a GUI interface or passed 
-#' as a parameter in the function call.
+#' as a parameter in the function call. The PREFIX is retained in the space used 
+#' for recording equipment code.
 #' 
 #' @param folder, string. Optional. Path to the audio files to be renamed. Can 
 #' be omitted and GUI pop-up used instead
@@ -20,13 +23,19 @@
 #' @param recordist, string, name of the recordist (or BTO if not provided).
 #' @param include_subfolders, bool, whether audio files in subfolders should be 
 #' included, default FALSE
+#' @param include_label_file, bool, whether to rename label files in same folder
 #' 
 #' @import rstudioapi
 #' @import stringr
 #' 
 #' @export
 #' 
-rename_songmeter_files <- function(folder = NULL, site, recordist = 'BTO', include_subfolders = FALSE) {
+rename_songmeter_files <- function(folder = NULL, 
+                                   site, 
+                                   recordist = 'BTO', 
+                                   include_subfolders = FALSE,
+                                   include_label_files = TRUE
+                                   ) {
   #check incoming params for problems
   if(is.null(site)) stop('site must be provided')
   if(is.null(recordist)) stop('recordist must be provided')
@@ -43,6 +52,12 @@ rename_songmeter_files <- function(folder = NULL, site, recordist = 'BTO', inclu
   audios <- list.files(path = folder, pattern = "*.wav", full.names = TRUE, recursive = include_subfolders)
   if(length(audios)==0) stop('No wav files in selected folder')
   
+  if(include_label_files==TRUE) {
+    labfiles <- list.files(path = folder, pattern = "*.txt", full.names = TRUE, recursive = include_subfolders)
+    audios <- c(audios, labfiles)
+  }
+    
+  
   #iterate over files
   for(i in 1:length(audios)) {
     
@@ -54,7 +69,7 @@ rename_songmeter_files <- function(folder = NULL, site, recordist = 'BTO', inclu
     if(dim(bits)[2] != 4) stop('Existing file name format has more components than expected. Expecting PREFIX_YYYYMMDD_HHMMSS.WAV')
     
     #create the new file name
-    newname <- file.path(thisfolder, paste0(bits[,2], '-', bits[,3], '-', site, '-', recordist, '-XM.' , bits[,4]))
+    newname <- file.path(thisfolder, paste0(bits[,2], '-', bits[,3], '-', site, '-', recordist, '-', bits[,1],"." , bits[,4]))
     #check if newname exists - stop if so as this should not happen
     if(file.exists(newname)) {
       stop("A file already exists with the proposed newname.\nOld name = ",audios[i],"\nNew name = ",newname,"\nProceeding will cause files to be overwritten so process is terminated")
