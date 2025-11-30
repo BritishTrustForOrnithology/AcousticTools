@@ -2,7 +2,8 @@
 #' 
 #' @description This utility is for extracting fixed-length audio chunks from 
 #' longer soundscape files on the basis of instantaneous (zero-length) labels. 
-#' It assumes that labels are of the form [BT-S,GT-S,ST-F].
+#' It assumes that labels are of the form BT-S,GT-S,ST-F, or WS-F. If no call 
+#' type code is given, a 'S' code (stationary/standard) is assumed.
 #' 
 #' @param path_in = the folder where the audio+label files are located. If NULL, uses directory picker pop-up.
 #' @param path_out = the folder where the extracted audio chunks and associated 
@@ -15,7 +16,8 @@
 #'
 #'
 
-create_chunks_from_labels <- function(path_in = NULL, path_out = NULL, primary_spp = NULL, chunk_duration = 5) {
+create_chunks_from_labels <- function(path_in = NULL, path_out = NULL, primary_spp = NULL, 
+                                      chunk_duration = 5) {
   #validate inputs
   if(is.null(path_in)) path_in <- rstudioapi::selectDirectory(caption = 'Select path for audio to process')
   if(!dir.exists(path_in)) stop("path_in does not exist")
@@ -30,7 +32,7 @@ create_chunks_from_labels <- function(path_in = NULL, path_out = NULL, primary_s
   
   #iterate over label files
   for(i in 1:length(files_labels)) {
-    #i <- 1
+    #i <- 2
     file1 <- files_labels[i]
     #get name of corresponding audio file
     wav1 <- gsub(".txt", ".wav",file1)
@@ -52,9 +54,13 @@ create_chunks_from_labels <- function(path_in = NULL, path_out = NULL, primary_s
       #turn the label string into a list of labels
       labs <- strsplit(gsub("^\\[|\\]$", "", labels1$label), ",")[[1]]
       
+      #add default S where call type is missing
+      labs <- ifelse(grepl("-", labs), labs, paste0(labs, "-S"))
+      
       #get primary species
-      if(is.null(primary_spp)) spp_for_filename <- strsplit(labs[1],"-")[[1]][1]
-      else spp_for_filename <- primary_spp
+      if(is.null(primary_spp)) {
+        spp_for_filename <- strsplit(labs[1],"-")[[1]][1] 
+      } else spp_for_filename <- primary_spp
       
       #use file start time and the position of the label to make the detection start time
       detection_time <- format(file_start + labels1$start, "%Y%m%d-%H%M%S")
