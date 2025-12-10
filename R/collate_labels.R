@@ -8,13 +8,16 @@
 #'
 #' @return A dataframe with columns start, end, label, label_file name and original_audio_file name.
 #'
+#' @importFrom data.table rbindlist
+#'
 #' @export
 #'
 collate_labels <- function(folder = 'E:/Data', include_subfolders = FALSE) {
   if(!dir.exists(folder)) stop('Folder does not exist')
   if(!is.logical(include_subfolders)) stop('include_subfolders must be TRUE or FALSE')
+  time1 <- Sys.time()
   txts <- list.files(path = folder, pattern = "*.txt", full.names = TRUE, recursive = include_subfolders)
-  labels <- list()
+  labels <- vector("list", length(txts))
   for(t in 1:length(txts)) {
     #Use try catch in case there are txt files of incorrect format
     tryCatch(
@@ -35,6 +38,12 @@ collate_labels <- function(folder = 'E:/Data', include_subfolders = FALSE) {
       }
     )
   }
-  labels <- do.call(rbind, labels)
+  #labels <- do.call(rbind, labels)
+  labels <- rbindlist(labels, use.names = TRUE, fill = TRUE)
+  
+  time2 <- Sys.time()
+  took <- difftime(time1, time2, units = 'secs')
+  cat(took,"seconds to read",length(txts),"label files containing",nrow(labels),"labels.\n")
+  
   return(labels)
 }
