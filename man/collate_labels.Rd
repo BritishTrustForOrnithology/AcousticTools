@@ -19,4 +19,6 @@ Scan a folder and collate any label file contents
 }
 \details{
 Scan a folder to find Audacity label files and collate any labels.
+Assumes label files are of the form audio_file_name.txt (i.e. won't currently
+work with BirdNET label files).
 }

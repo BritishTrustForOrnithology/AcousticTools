@@ -1,6 +1,8 @@
 #' Scan a folder and collate any label file contents
 #'
 #' @details Scan a folder to find Audacity label files and collate any labels. 
+#' Assumes label files are of the form audio_file_name.txt (i.e. won't currently 
+#' work with BirdNET label files).
 #' 
 #' 
 #' @param folder = str, folder to be scanned
@@ -42,7 +44,7 @@ collate_labels <- function(folder = 'E:/Data', include_subfolders = FALSE) {
   labels <- rbindlist(labels, use.names = TRUE, fill = TRUE)
   
   time2 <- Sys.time()
-  took <- difftime(time1, time2, units = 'secs')
+  took <- difftime(time2, time1, units = 'secs')
   cat(took,"seconds to read",length(txts),"label files containing",nrow(labels),"labels.\n")
   
   return(labels)
