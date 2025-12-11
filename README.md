@@ -3,6 +3,13 @@ R package for supporting BTO acoustic data analyses.
 
 ## Installation
 
+Note before installing AcousticTools you must install BTOTools as this contains the species dictionary on which AcousticTools depends. You can install using:
+``` r
+devtools::install_github('BritishTrustForOrnithology/BTOTools')
+```
+
+Once that is completed, then use the following to install AcousticTools:
+
 ``` r
 devtools::install_github('BritishTrustForOrnithology/AcousticTools')
 ```
