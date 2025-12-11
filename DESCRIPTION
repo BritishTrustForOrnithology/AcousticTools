@@ -16,4 +16,5 @@ Imports:
   httr,
   jsonlite,
   lubridate,
-  BTOTools
+  BTOTools,
+  data.table
