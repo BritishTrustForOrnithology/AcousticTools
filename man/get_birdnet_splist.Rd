@@ -2,17 +2,21 @@
 % Please edit documentation in R/get_birdnet_splist.R
 \name{get_birdnet_splist}
 \alias{get_birdnet_splist}
-\title{Read BirdNET species list}
+\title{Read BirdNET labels file}
 \usage{
-get_birdnet_splist(path_birdnet = "F:/BirdNET-Analyzer", version = 2.4)
+get_birdnet_splist(file = NULL)
 }
 \arguments{
-\item{path_birdnet, }{string, the path to where BirdNET Analyzer is installed,
-e.g. "F:/BirdNET-Analyzer"}
-
-\item{version, }{numeric, the BirdNET version to check, e.g. 2.4}
+\item{file}{= string, the path to a labels file}
 }
 \description{
 Get the full species list supported by the current version of BirdNET. Requires
-a local installation of BirdNET.
+a local installation of BirdNET. As the location of the label file has changed
+in some versions, this function requires you to provide the path or navigate
+to the file, ending like ".../checkpoints/V2.4/BirdNET_GLOBAL_6K_V2.4_Labels.txt"
+}
+\examples{
+\dontrun{
+get_birdnet_splist(file = "C:/Users/simon.gillings/AppData/Local/Programs/BirdNET-Analyzer/_internal/birdnet_analyzer/checkpoints/V2.4/BirdNET_GLOBAL_6K_V2.4_Labels.txt")
+}
 }
