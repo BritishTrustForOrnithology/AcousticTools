@@ -9,7 +9,7 @@ organise_labelled_clips(folder = NULL, path_library = NULL)
 \arguments{
 \item{folder}{= Path to a folder containing the audio and label files to be moved. Can be NULL and use RStudio folder dialogue instead.}
 
-\item{path_library}{= Path to the top level of the audio library. Can be NULL and use RStudio folder dialogue instead.}
+\item{path_library}{= Path to the \emph{top level} of the audio library. Can be NULL and use RStudio folder dialogue instead.}
 }
 \description{
 This objective of this function is to move audio files with paired label file

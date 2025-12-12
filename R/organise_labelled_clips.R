@@ -11,7 +11,7 @@
 #' @import rstudioapi
 #' 
 #' @param folder = Path to a folder containing the audio and label files to be moved. Can be NULL and use RStudio folder dialogue instead.
-#' @param path_library = Path to the top level of the audio library. Can be NULL and use RStudio folder dialogue instead.
+#' @param path_library = Path to the *top level* of the audio library. Can be NULL and use RStudio folder dialogue instead.
 #' 
 #' @export
 #' 
@@ -20,10 +20,10 @@ organise_labelled_clips <- function(folder = NULL, path_library = NULL) {
     path_input <- rstudioapi::selectDirectory(caption = 'Select Dir containing clips to organise')
   } else path_input = folder
   if(is.null(path_library)) {
-    path_library <- rstudioapi::selectDirectory(caption = 'Select location of audio library')
+    path_library <- rstudioapi::selectDirectory(caption = 'Select TOP LEVEL location of audio library, e.g. S:/Audible/Library')
   }
   #validate paths - last level must be "audio_library"
-  if(basename(path_library) != 'audio_library') stop("path_library incorrectly specified. Must be top level ending audio_library")
+  if (basename(path_library) != "audio_library" & basename(path_library) != "Library") stop("path_library incorrectly specified. Must be top level ending audio_library or Library")
   
   #prepare the species dictionary as used for labelling
   data("global_species_lookup")
