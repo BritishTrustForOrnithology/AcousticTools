@@ -30,7 +30,7 @@ check_labels <- function(folder = NULL) {
   
   
   #prepare the species dictionary as used for labelling
-  data("global_species_lookup")
+  data("global_species_lookup",package = 'BTOTools')
   gsl <- global_species_lookup
   #deal with Pied Wag slash
   gsl$english_name <- ifelse(gsl$code2ltr=='PW', 'Pied-White Wagtail', gsl$english_name)
