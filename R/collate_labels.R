@@ -1,12 +1,12 @@
 #' Scan a folder and collate any label file contents
 #'
 #' @details Scan a folder to find Audacity label files and collate any labels. 
-#' Assumes label files are of the form audio_file_name.txt (i.e. won't currently 
-#' work with BirdNET label files).
-#' 
+#' By default assumes labels files are from the Pipeline, but can be set to 
+#' return BirdNET-derived Audacity labels.
 #' 
 #' @param folder = str, folder to be scanned
 #' @param include_subfolders = bool, whether to scan recursively
+#' @param source = whether to read 'Pipeline' or 'BirdNET' labels
 #'
 #' @return A dataframe with columns start, end, label, label_file name and original_audio_file name.
 #'
@@ -14,32 +14,67 @@
 #'
 #' @export
 #'
-collate_labels <- function(folder = 'E:/Data', include_subfolders = FALSE) {
+collate_labels <- function(folder = 'E:/Data', include_subfolders = FALSE, source = 'Pipeline') {
   if(!dir.exists(folder)) stop('Folder does not exist')
   if(!is.logical(include_subfolders)) stop('include_subfolders must be TRUE or FALSE')
+  if(!source %in% c('Pipeline','BirdNET')) stop('source must be either Pipeline or BirdNET')
   time1 <- Sys.time()
   txts <- list.files(path = folder, pattern = "*.txt", full.names = TRUE, recursive = include_subfolders)
-  labels <- vector("list", length(txts))
-  for(t in 1:length(txts)) {
-    #Use try catch in case there are txt files of incorrect format
-    tryCatch(
-      {
-        labs <- read.csv(txts[t], header = FALSE, sep = '\t', col.names = c('start','end','label'))
-        labs$label_file <- txts[t]
-        labs$original_audio_file <- gsub(".txt", ".wav",txts[t])
-        labels[[t]] <- labs
-        rm(labs)
-      },
-      warning = function(w) {
-        warning('wrong file format: ', txts[t])
-        #next
-      },
-      error = function(e) {
-        message('wrong file format: ', txts[t])
-        #next
-      }
-    )
+  
+  #process Pipeline style labels
+  if(source == 'Pipeline') {
+    txts <- txts[!grepl('BirdNET', txts)]
+    labels <- vector("list", length(txts))
+    for(t in 1:length(txts)) {
+      #Use try catch in case there are txt files of incorrect format
+      tryCatch(
+        {
+          labs <- read.csv(txts[t], header = FALSE, sep = '\t', col.names = c('start','end','label'))
+          labs$label_file <- txts[t]
+          labs$original_audio_file <- gsub(".txt", ".wav",txts[t])
+          labels[[t]] <- labs
+          rm(labs)
+        },
+        warning = function(w) {
+          warning('wrong file format: ', txts[t])
+          #next
+        },
+        error = function(e) {
+          message('wrong file format: ', txts[t])
+          #next
+        }
+      )
+    }
   }
+  
+  #process BirdNET style labels
+  if(source == 'BirdNET') {
+    txts <- txts[grepl('BirdNET', txts)]
+    labels <- vector("list", length(txts))
+    for(t in 1:length(txts)) {
+      #Use try catch in case there are txt files of incorrect format
+      tryCatch(
+        {
+          labs <- read.csv(txts[t], header = FALSE, sep = '\t', col.names = c('start','end','label','score'))
+          if(nrow(labs)==0) next
+          labs$label_file <- txts[t]
+          labs$original_audio_file <- gsub(".txt", ".wav",txts[t])
+          labels[[t]] <- labs
+          rm(labs)
+        },
+        warning = function(w) {
+          warning('wrong file format: ', txts[t])
+          #next
+        },
+        error = function(e) {
+          message('wrong file format: ', txts[t])
+          #next
+        }
+      )
+    }
+  }
+  
+  
   #labels <- do.call(rbind, labels)
   labels <- rbindlist(labels, use.names = TRUE, fill = TRUE)
   

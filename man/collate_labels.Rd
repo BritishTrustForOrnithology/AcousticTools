@@ -4,12 +4,18 @@
 \alias{collate_labels}
 \title{Scan a folder and collate any label file contents}
 \usage{
-collate_labels(folder = "E:/Data", include_subfolders = FALSE)
+collate_labels(
+  folder = "E:/Data",
+  include_subfolders = FALSE,
+  source = "Pipeline"
+)
 }
 \arguments{
 \item{folder}{= str, folder to be scanned}
 
 \item{include_subfolders}{= bool, whether to scan recursively}
+
+\item{source}{= whether to read 'Pipeline' or 'BirdNET' labels}
 }
 \value{
 A dataframe with columns start, end, label, label_file name and original_audio_file name.
@@ -19,6 +25,6 @@ Scan a folder and collate any label file contents
 }
 \details{
 Scan a folder to find Audacity label files and collate any labels.
-Assumes label files are of the form audio_file_name.txt (i.e. won't currently
-work with BirdNET label files).
+By default assumes labels files are from the Pipeline, but can be set to
+return BirdNET-derived Audacity labels.
 }
