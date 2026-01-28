@@ -28,7 +28,7 @@ make_labels_from_filename <- function(position = NULL, calltype = NULL, overwrit
   
   path_clips <- rstudioapi::selectDirectory()
   
-  label_string <- paste(position,position,label, sep = "\t")
+  #label_string <- paste(position,position,label, sep = "\t")
   
   audios <- list.files(path_clips, pattern = "*.flac|*.mp3|*.wav", full.names = TRUE, recursive = subfolders)
   txts <- audios
