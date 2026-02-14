@@ -174,6 +174,7 @@ read_birdnet_results <- function(folder, subfolders = TRUE)  {
     detections <- list()
     for(i in 1:length(filepaths)) {
       temp <- read.csv(filepaths[i], sep='\t', header = FALSE, col.names = c('start', 'end','name','score'))
+      if(nrow(temp)==0) next
       
       #split the label name into sci and Eng names
       bits <- stringr::str_split_fixed(temp$name, ',', n = 2)
