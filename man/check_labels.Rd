@@ -4,10 +4,12 @@
 \alias{check_labels}
 \title{Error check label files}
 \usage{
-check_labels(folder = NULL)
+check_labels(folder = NULL, calltypes = NULL)
 }
 \arguments{
 \item{folder}{= Path to a folder containing the labels to check. Can be NULL and use RStudio folder dialogue instead.}
+
+\item{calltypes}{= an optional list of allowed call types to add to the inbuilt defaults ('F','S','C','D','Z'). Useful if checking within-species call-type based labels}
 }
 \value{
 A dataframe listing the label files checked and 1/0 indication of pass status for each check.
@@ -16,6 +18,7 @@ A dataframe listing the label files checked and 1/0 indication of pass status fo
 Given a folder of labelled audio files the function does some basic
 checks that the label files meet required standards. Currently the function checks:
 \itemize{
+\item if the file can be read (correct tab-delimited format)
 \item if the label start is numeric
 \item if the label end is numeric
 \item if all species codes are recognised
@@ -23,4 +26,9 @@ checks that the label files meet required standards. Currently the function chec
 \item if channels are present, if they are correctly specified
 \item if there is a matching wav or mp3 file
 }
+}
+\examples{
+check_labels(calltypes = c(1,2,3,4))
+
+
 }

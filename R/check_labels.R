@@ -3,6 +3,7 @@
 #' @description Given a folder of labelled audio files the function does some basic 
 #' checks that the label files meet required standards. Currently the function checks:
 #' 
+#' * if the file can be read (correct tab-delimited format)
 #' * if the label start is numeric
 #' * if the label end is numeric
 #' * if all species codes are recognised
@@ -17,17 +18,24 @@
 #' @import rstudioapi
 #' 
 #' @param folder = Path to a folder containing the labels to check. Can be NULL and use RStudio folder dialogue instead.
+#' @param calltypes = an optional list of allowed call types to add to the inbuilt defaults ('F','S','C','D','Z'). Useful if checking within-species call-type based labels
 #' 
+#' @examples
+#' check_labels(calltypes = c(1,2,3,4))
 #' 
 #' 
 #' @export
 #' 
 
-check_labels <- function(folder = NULL) {
+check_labels <- function(folder = NULL, calltypes = NULL) {
   if(is.null(folder)) {
     path_input <- rstudioapi::selectDirectory(caption = 'Select Dir containing clips to organise')
   } else path_input = folder
-  
+  if(is.null(calltypes)) {
+    calltypes <- c('F','S','C','D','Z')
+  } else {
+    calltypes <- c(c('F','S','C','D','Z'), as.character(calltypes))
+  }
   
   #prepare the species dictionary as used for labelling
   data("global_species_lookup",package = 'BTOTools')
@@ -53,44 +61,65 @@ check_labels <- function(folder = NULL) {
   error_check <- list()
   for(i in 1:length(files_labels)) {
     #i <- 1
-    lab <- read.csv(files_labels[i], sep='\t', header = FALSE, col.names = c('start','end','lab'))
-    #check the start and end are properly populated
-    start_is_numeric <- as.numeric(all(is.numeric(lab$start)))
-    end_is_numeric <- as.numeric(all(is.numeric(lab$end)))
+    file_format <- 1
+    start_is_numeric <- 0
+    end_is_numeric <- 0
+    sppcodes_accepted <- 0
+    callcodes_accepted <- 0
+    channels_accepted <- 0
     
-    #check the label string...
-    bits <- stringr::str_split_fixed(lab$lab, "-", n=Inf)
-    #are all species codes recognised?
-    sppcodes_accepted <- as.numeric(all(bits[,1] %in% c(gsl$code, 'ZZ','XHUMAN')))
-    #are all call type codes recognised?
-    callcodes_accepted <- as.numeric(all(bits[,2] %in% c('F','S','C','D','Z')))
-    #if channels are provided, are they acceptable?
-    if(dim(bits)[2] == 3) {
-      channels_accepted <- as.numeric(all(bits[,3] %in% c('10','01','11')))
-    } else channels_accepted <- 1
+    tryCatch({
+      lab <- read.csv(files_labels[i], sep='\t', header = FALSE, col.names = c('start','end','lab'))
+    }, error = function(e) {
+      file_format <<- 0
+    }, warning = function(w) {
+      file_format <<- 0
+    })
     
-    #check for matching audio file
-    file_wav <- file.exists(gsub(".txt",".wav",files_labels[i]))
-    file_WAV <- file.exists(gsub(".txt",".WAV",files_labels[i]))
-    file_mp3 <- file.exists(gsub(".txt",".mp3",files_labels[i]))
+    if (file_format == 1) {
+      
+      # check the start and end are properly populated
+      start_is_numeric <- as.numeric(all(is.numeric(lab$start)))
+      end_is_numeric <- as.numeric(all(is.numeric(lab$end)))
+      
+      # check the label string...
+      bits <- stringr::str_split_fixed(lab$lab, "-", n=Inf)
+      # are all species codes recognised?
+      sppcodes_accepted <- as.numeric(all(bits[,1] %in% c(gsl$code, 'ZZ','XHUMAN')))
+      # are all call type codes recognised?
+      callcodes_accepted <- as.numeric(all(bits[,2] %in% calltypes))
+      # if channels are provided, are they acceptable?
+      if (dim(bits)[2] == 3) {
+        channels_accepted <- as.numeric(all(bits[,3] %in% c('10','01','11')))
+      } else {
+        channels_accepted <- 1
+      }
+      
+    }
+    
+    # check for matching audio file (runs regardless of file_corrupt)
+    file_wav <- file.exists(gsub(".txt", ".wav", files_labels[i]))
+    file_WAV <- file.exists(gsub(".txt", ".WAV", files_labels[i]))
+    file_mp3 <- file.exists(gsub(".txt", ".mp3", files_labels[i]))
     
     matching_audio <- as.numeric(any(file_wav, file_WAV, file_mp3))
     
-    
     error_check[[i]] <- data.frame(file = files_labels[i],
-                                   start_is_numeric, 
-                                   end_is_numeric, 
-                                   sppcodes_accepted, 
-                                   callcodes_accepted, 
+                                   file_format,
+                                   start_is_numeric,
+                                   end_is_numeric,
+                                   sppcodes_accepted,
+                                   callcodes_accepted,
                                    channels_accepted,
                                    matching_audio)
+    
+    
   }
   
   error_check <- do.call(rbind, error_check)
-  error_check$nerrors <- apply(error_check[,2:7],1,sum)
-  error_check$nerrors <- 6-error_check$nerrors
-  haserrors <- sum(error_check$nerrors)
-  message('Number of errors found = ',haserrors)
+  error_check$has_errors <- abs(1-apply(error_check[,2:7],1,min))
+  haserrors <- sum(error_check$has_errors)
+  message('Files with errors = ',haserrors)
   
   return(error_check)
 }
