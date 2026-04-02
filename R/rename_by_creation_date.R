@@ -14,6 +14,8 @@
 #' creation date no longer equates to the start time!
 #' 
 #' 
+#' @param folder, string. Optional. Path to the audio files to be renamed. Can 
+#' be omitted and GUI pop-up used instead
 #' @param suffix, string, detailing a string to add to the date time prefix. 
 #' A typical use case will be a site name.
 #' @param sep, string, the separator to use between datetime and suffix components. 
@@ -24,10 +26,14 @@
 #' 
 #' @export
 #' 
-rename_by_creation_date <- function(suffix, sep = "-") {
-  #folder to scan 
-  folder <- rstudioapi::selectDirectory()
+rename_by_creation_date <- function(folder, suffix, sep = "-") {
+  if(!is.null(folder)) {
+    if(!dir.exists(folder)) stop('selected folder does not exist')
+  } 
   
+  #GUI select folder to scan 
+  if(is.null(folder)) folder <- rstudioapi::selectDirectory()
+
   #if suffix does not start with a separator, add one
   suffix <- ifelse(substr(suffix,1,1) != sep, paste0(sep, suffix), suffix)  
   
