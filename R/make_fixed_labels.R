@@ -11,6 +11,8 @@
 #' (seconds) and label. Optionally the user can specify to overwrite any existing label 
 #' files, and to scan recursively.
 #' 
+#' @param folder, string. Optional. Path to the audio files to be renamed. Can 
+#' be omitted and GUI pop-up used instead
 #' @param position = the position (in seconds) where the label should be created
 #' @param label = the label code to be assigned at position
 #' @param overwrite = whether to overwrite existing label files (default FALSE)
@@ -20,13 +22,20 @@
 #' 
 #' @export
 
-make_fixed_labels <- function(position = NULL, label = NULL, overwrite = FALSE, subfolders = TRUE) {
+make_fixed_labels <- function(folder = NULL, position = NULL, label = NULL, overwrite = FALSE, subfolders = TRUE) {
+  if(!is.null(folder)) {
+    if(!dir.exists(folder)) stop('selected folder does not exist')
+  } 
+  
+  
   if(is.null(position)) stop("position must be supplied")
   if(!is.numeric(position)) stop('position must be numeric')
   if(is.null(label)) stop("label must be supplied")
   
-  path_clips <- rstudioapi::selectDirectory()
-  
+  #GUI select folder to scan 
+  if(!is.null(folder)) path_clips <- folder
+  if(is.null(folder)) path_clips <- rstudioapi::selectDirectory()
+
   label_string <- paste(position,position,label, sep = "\t")
   
   audios <- list.files(path_clips, pattern = "*.flac|*.mp3|*.wav", full.names = TRUE, recursive = subfolders)
