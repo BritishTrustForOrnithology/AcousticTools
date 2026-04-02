@@ -4,9 +4,12 @@
 \alias{rename_by_creation_date}
 \title{Rename audio files on SD card using creation date}
 \usage{
-rename_by_creation_date(suffix, sep = "-")
+rename_by_creation_date(folder, suffix, sep = "-")
 }
 \arguments{
+\item{folder, }{string. Optional. Path to the audio files to be renamed. Can
+be omitted and GUI pop-up used instead}
+
 \item{suffix, }{string, detailing a string to add to the date time prefix.
 A typical use case will be a site name.}
 

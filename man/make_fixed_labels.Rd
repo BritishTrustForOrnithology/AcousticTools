@@ -5,6 +5,7 @@
 \title{Create fixed position label files}
 \usage{
 make_fixed_labels(
+  folder = NULL,
   position = NULL,
   label = NULL,
   overwrite = FALSE,
@@ -12,6 +13,9 @@ make_fixed_labels(
 )
 }
 \arguments{
+\item{folder, }{string. Optional. Path to the audio files to be renamed. Can
+be omitted and GUI pop-up used instead}
+
 \item{position}{= the position (in seconds) where the label should be created}
 
 \item{label}{= the label code to be assigned at position}
